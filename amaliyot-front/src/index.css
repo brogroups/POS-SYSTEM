@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+@theme {
+  --color-border: #2a2e3d;
+  --color-input: #2a2e3d;
+  --color-ring: #3b82f6;
+  
+  --color-background: #0f121b;
+  --color-foreground: #f8fafc;
+
+  --color-primary: #3b82f6;
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: #1e2230;
+  --color-secondary-foreground: #f8fafc;
+
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+
+  --color-muted: #1e2230;
+  --color-muted-foreground: #94a3b8;
+
+  --color-accent: #2563eb;
+  --color-accent-foreground: #ffffff;
+
+  --color-popover: #181b25;
+  --color-popover-foreground: #f8fafc;
+
+  --color-card: #181b25;
+  --color-card-foreground: #f8fafc;
+
+  --radius-lg: 1rem;
+  --radius-md: 0.75rem;
+  --radius-sm: 0.5rem;
+}
+
+@layer base {
+  :root {
+    --background: 228 29% 8%; /* #0f121b */
+    --foreground: 210 40% 98%;
+ 
+    --card: 226 21% 12%; /* #181b25 */
+    --card-foreground: 210 40% 98%;
+ 
+    --popover: 226 21% 12%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --primary: 217 91% 60%; /* #3b82f6 */
+    --primary-foreground: 210 40% 98%;
+ 
+    --secondary: 227 23% 15%; /* #1e2230 */
+    --secondary-foreground: 210 40% 98%;
+ 
+    --muted: 227 23% 15%;
+    --muted-foreground: 215 16% 65%; /* #94a3b8 */
+ 
+    --accent: 221 83% 53%; /* #2563eb */
+    --accent-foreground: 210 40% 98%;
+ 
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+ 
+    --border: 227 18% 20%; /* #2a2e3d */
+    --input: 227 18% 20%;
+    --ring: 217 91% 60%;
+ 
+    --radius: 0.75rem;
+  }
+  
+  /* Ilova har doim dark mode bo'lishini ta'minlaymiz rasmga mos holda */
+  * {
+    border-color: var(--color-border);
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    /* Forcing dark mode visually even without class */
+    color-scheme: dark;
+  }
+}
+
+/* Glassmorphism utilities */
+@utility glass {
+  background-color: rgb(30 34 48 / 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgb(255 255 255 / 0.05);
+}
+
+/* Maxsus stol holatlari uchun ranglar */
+@utility table-free {
+  background-color: #22c55e;
+  color: white;
+}
+@utility table-occupied {
+  background-color: #ef4444;
+  color: white;
+}
+@utility table-selected {
+  background-color: #3b82f6;
+  border: 4px solid #60a5fa;
+  color: white;
+}
+@utility table-ordered {
+  background-color: #334155;
+  color: white;
+}
+
+/* Hide number input arrows */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}

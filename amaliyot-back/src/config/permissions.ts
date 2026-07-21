@@ -1,0 +1,219 @@
+/**
+ * Permission System for Hookah Bar POS
+ * 
+ * Defines granular permissions per role.
+ * SUPERADMIN always has unlimited access (bypasses all checks).
+ */
+
+export const PERMISSIONS = {
+  // Table operations
+  OPEN_TABLE: 'open_table',
+  FREEZE_TABLE: 'freeze_table',
+  UNFREEZE_TABLE: 'unfreeze_table',
+  CLOSE_TABLE: 'close_table',
+
+  // Session operations
+  CREATE_SESSION: 'create_session',
+  CLOSE_SESSION: 'close_session',
+
+  // Order operations
+  EDIT_PRODUCTS: 'edit_products',
+  MOVE_PRODUCTS: 'move_products',
+  SWAP_PRODUCTS: 'swap_products',
+
+  // Payment operations
+  RECEIVE_PAYMENT: 'receive_payment',
+  APPLY_DISCOUNT: 'apply_discount',
+  PROCESS_REFUND: 'process_refund',
+
+  // Print
+  PRINT_RECEIPT: 'print_receipt',
+
+  // Expense
+  CREATE_EXPENSE: 'create_expense',
+  APPROVE_EXPENSE: 'approve_expense',
+  REJECT_EXPENSE: 'reject_expense',
+
+  // Inventory
+  VIEW_INVENTORY: 'view_inventory',
+  ADJUST_INVENTORY: 'adjust_inventory',
+  CREATE_PURCHASE: 'create_purchase',
+
+  // Hookah
+  MANAGE_HOOKAH: 'manage_hookah',
+  VIEW_HOOKAH_REPORT: 'view_hookah_report',
+
+  // Shift
+  OPEN_SHIFT: 'open_shift',
+  CLOSE_SHIFT: 'close_shift',
+
+  // Admin
+  MANAGE_USERS: 'manage_users',
+  MODIFY_REPORTS: 'modify_reports',
+  RESTORE_DELETED: 'restore_deleted',
+  VIEW_AUDIT_LOG: 'view_audit_log',
+  DELETE_HISTORY: 'delete_history',
+
+  // Cash
+  MANUAL_CASH_DEPOSIT: 'manual_cash_deposit',
+  MANUAL_CASH_WITHDRAWAL: 'manual_cash_withdrawal',
+} as const;
+
+export type Permission = typeof PERMISSIONS[keyof typeof PERMISSIONS];
+
+/**
+ * Role → Permission mapping
+ */
+const ROLE_PERMISSIONS: Record<string, Permission[]> = {
+  WAITER: [
+    PERMISSIONS.OPEN_TABLE,
+    PERMISSIONS.FREEZE_TABLE,
+    PERMISSIONS.UNFREEZE_TABLE,
+    PERMISSIONS.CREATE_SESSION,
+    PERMISSIONS.EDIT_PRODUCTS,
+    PERMISSIONS.MOVE_PRODUCTS,
+    PERMISSIONS.SWAP_PRODUCTS,
+    PERMISSIONS.PRINT_RECEIPT,
+    PERMISSIONS.CREATE_EXPENSE,
+    PERMISSIONS.VIEW_INVENTORY,
+    PERMISSIONS.VIEW_HOOKAH_REPORT,
+  ],
+
+  CHEF: [
+    PERMISSIONS.VIEW_INVENTORY,
+  ],
+
+  CASHIER: [
+    // Everything waiter has
+    PERMISSIONS.OPEN_TABLE,
+    PERMISSIONS.FREEZE_TABLE,
+    PERMISSIONS.UNFREEZE_TABLE,
+    PERMISSIONS.CLOSE_TABLE,
+    PERMISSIONS.CREATE_SESSION,
+    PERMISSIONS.CLOSE_SESSION,
+    PERMISSIONS.EDIT_PRODUCTS,
+    PERMISSIONS.MOVE_PRODUCTS,
+    PERMISSIONS.SWAP_PRODUCTS,
+    PERMISSIONS.PRINT_RECEIPT,
+    PERMISSIONS.CREATE_EXPENSE,
+    PERMISSIONS.VIEW_INVENTORY,
+    PERMISSIONS.VIEW_HOOKAH_REPORT,
+    // Cashier-specific
+    PERMISSIONS.RECEIVE_PAYMENT,
+    PERMISSIONS.APPLY_DISCOUNT,
+    PERMISSIONS.OPEN_SHIFT,
+    PERMISSIONS.CLOSE_SHIFT,
+    PERMISSIONS.MANUAL_CASH_DEPOSIT,
+    PERMISSIONS.MANUAL_CASH_WITHDRAWAL,
+  ],
+
+  MANAGER: [
+    // Everything cashier has + management
+    PERMISSIONS.OPEN_TABLE,
+    PERMISSIONS.FREEZE_TABLE,
+    PERMISSIONS.UNFREEZE_TABLE,
+    PERMISSIONS.CLOSE_TABLE,
+    PERMISSIONS.CREATE_SESSION,
+    PERMISSIONS.CLOSE_SESSION,
+    PERMISSIONS.EDIT_PRODUCTS,
+    PERMISSIONS.MOVE_PRODUCTS,
+    PERMISSIONS.SWAP_PRODUCTS,
+    PERMISSIONS.PRINT_RECEIPT,
+    PERMISSIONS.CREATE_EXPENSE,
+    PERMISSIONS.APPROVE_EXPENSE,
+    PERMISSIONS.REJECT_EXPENSE,
+    PERMISSIONS.VIEW_INVENTORY,
+    PERMISSIONS.ADJUST_INVENTORY,
+    PERMISSIONS.CREATE_PURCHASE,
+    PERMISSIONS.VIEW_HOOKAH_REPORT,
+    PERMISSIONS.MANAGE_HOOKAH,
+    PERMISSIONS.RECEIVE_PAYMENT,
+    PERMISSIONS.APPLY_DISCOUNT,
+    PERMISSIONS.PROCESS_REFUND,
+    PERMISSIONS.OPEN_SHIFT,
+    PERMISSIONS.CLOSE_SHIFT,
+    PERMISSIONS.MODIFY_REPORTS,
+    PERMISSIONS.RESTORE_DELETED,
+    PERMISSIONS.VIEW_AUDIT_LOG,
+    PERMISSIONS.MANAGE_USERS,
+    PERMISSIONS.MANUAL_CASH_DEPOSIT,
+    PERMISSIONS.MANUAL_CASH_WITHDRAWAL,
+  ],
+
+  ADMIN: [
+    // Same as manager
+    PERMISSIONS.OPEN_TABLE,
+    PERMISSIONS.FREEZE_TABLE,
+    PERMISSIONS.UNFREEZE_TABLE,
+    PERMISSIONS.CLOSE_TABLE,
+    PERMISSIONS.CREATE_SESSION,
+    PERMISSIONS.CLOSE_SESSION,
+    PERMISSIONS.EDIT_PRODUCTS,
+    PERMISSIONS.MOVE_PRODUCTS,
+    PERMISSIONS.SWAP_PRODUCTS,
+    PERMISSIONS.PRINT_RECEIPT,
+    PERMISSIONS.CREATE_EXPENSE,
+    PERMISSIONS.APPROVE_EXPENSE,
+    PERMISSIONS.REJECT_EXPENSE,
+    PERMISSIONS.VIEW_INVENTORY,
+    PERMISSIONS.ADJUST_INVENTORY,
+    PERMISSIONS.CREATE_PURCHASE,
+    PERMISSIONS.VIEW_HOOKAH_REPORT,
+    PERMISSIONS.MANAGE_HOOKAH,
+    PERMISSIONS.RECEIVE_PAYMENT,
+    PERMISSIONS.APPLY_DISCOUNT,
+    PERMISSIONS.PROCESS_REFUND,
+    PERMISSIONS.OPEN_SHIFT,
+    PERMISSIONS.CLOSE_SHIFT,
+    PERMISSIONS.MODIFY_REPORTS,
+    PERMISSIONS.RESTORE_DELETED,
+    PERMISSIONS.VIEW_AUDIT_LOG,
+    PERMISSIONS.DELETE_HISTORY,
+    PERMISSIONS.MANAGE_USERS,
+    PERMISSIONS.MANUAL_CASH_DEPOSIT,
+    PERMISSIONS.MANUAL_CASH_WITHDRAWAL,
+  ],
+
+  // SUPERADMIN bypasses all checks — no explicit list needed
+  SUPERADMIN: [],
+};
+
+/**
+ * Check if a role has a specific permission
+ */
+export function hasPermission(role: string, permission: Permission): boolean {
+  if (role === 'SUPERADMIN') return true;
+  const perms = ROLE_PERMISSIONS[role];
+  if (!perms) return false;
+  return perms.includes(permission);
+}
+
+/**
+ * Get all permissions for a role
+ */
+export function getPermissions(role: string): Permission[] {
+  if (role === 'SUPERADMIN') return Object.values(PERMISSIONS);
+  return ROLE_PERMISSIONS[role] || [];
+}
+
+/**
+ * Predefined expense categories for hookah bar operations
+ */
+export const EXPENSE_CATEGORIES = [
+  'TAXI',
+  'CLEANING',
+  'ICE',
+  'WATER',
+  'LIGHTER_GAS',
+  'CHARCOAL',
+  'COURIER',
+  'DECOR',
+  'MAINTENANCE',
+  'TIPS',
+  'RENT',
+  'SALARY',
+  'UTILITIES',
+  'MISC'
+] as const;
+
+export type ExpenseCategory = typeof EXPENSE_CATEGORIES[number];
