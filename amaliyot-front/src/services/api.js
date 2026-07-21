@@ -2,7 +2,7 @@ import axios from "axios";
 import { state } from "../store/appContext";
 
 // Backend address can be changed dynamically based on VITE_API_URL.
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL || "https://ohlala.techinfo.uz/api";
 
 const api = axios.create({
   baseURL: API_URL,

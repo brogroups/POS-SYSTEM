@@ -300,7 +300,7 @@ appContext.startPingCheck();
 // Real-Time WebSockets setup
 let socket = null;
 if (typeof window !== "undefined") {
-  const socketUrl = (import.meta.env.VITE_API_URL || "http://localhost:3000/api").replace("/api", "");
+  const socketUrl = (import.meta.env.VITE_API_URL || "https://ohlala.techinfo.uz/api").replace("/api", "");
   socket = io(socketUrl, {
     autoConnect: true,
     reconnection: true
