@@ -2867,8 +2867,16 @@ export default {
             const num = (t.table_number !== undefined && t.table_number !== null && String(t.table_number).trim() !== '')
               ? t.table_number
               : (idx + 1);
+            let roomName = t.room_name || t.roomName || "Asosiy zal";
+            if (roomName === "VIP zal") {
+              roomName = "VIP zona";
+              // Also update backend if room_name was VIP zal
+              api.put(`/restaurant-tables/${t.id}`, { room_name: "VIP zona" }).catch(() => {});
+            }
             return {
               ...t,
+              room_name: roomName,
+              roomName: roomName,
               table_number: num
             };
           });
