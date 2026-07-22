@@ -36,8 +36,20 @@ export const state = reactive({
   isOnline: true,
   syncing: false,
   isSidebarOpen: false,
-  isSidebarCollapsed: localStorage.getItem("isSidebarCollapsed") === "true",
-  uiScale: parseFloat(localStorage.getItem("uiScale") || "1"),
+  isSidebarCollapsed: (() => {
+    const saved = localStorage.getItem("isSidebarCollapsed");
+    if (saved !== null) return saved === "true";
+    if (typeof window !== "undefined" && window.innerWidth <= 1100) return true;
+    return false;
+  })(),
+  uiScale: (() => {
+    const saved = localStorage.getItem("uiScale");
+    if (saved) return parseFloat(saved);
+    if (typeof window !== "undefined" && (window.innerWidth <= 1100 || window.innerHeight <= 768)) {
+      return 0.85;
+    }
+    return 1.0;
+  })(),
   notifications: [],
   offlineQueue: (() => {
     try {
