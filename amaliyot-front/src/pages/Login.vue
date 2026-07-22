@@ -1,76 +1,78 @@
 <template>
-  <div class="min-h-screen bg-[#14161e] flex flex-col md:flex-row items-center justify-center p-4 relative overflow-hidden gap-8 select-none">
-    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/20 rounded-full blur-[120px]"></div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/20 rounded-full blur-[120px]"></div>
+  <div class="min-h-screen bg-[#14161e] flex flex-col items-center justify-center p-4 md:p-6 relative overflow-hidden select-none">
+    <div class="absolute top-[-10%] left-[-10%] w-[45%] h-[45%] bg-blue-500/20 rounded-full blur-[140px]"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] bg-purple-500/20 rounded-full blur-[140px]"></div>
 
-    <div class="w-full max-w-sm bg-[#181b25] border border-[#2a2e3d] rounded-2xl shadow-2xl overflow-hidden relative z-10 glass">
-      <div class="p-6 text-center border-b border-[#2a2e3d] bg-[#1e2230]/50">
-        <div class="h-14 w-14 mx-auto bg-primary/20 text-primary rounded-2xl flex items-center justify-center mb-3 shadow-[0_0_20px_rgba(59,130,246,0.3)]">
-          <Utensils class="h-7 w-7" />
+    <div class="w-full max-w-[460px] md:max-w-[500px] bg-[#181b25] border border-[#2a2e3d] rounded-3xl shadow-2xl overflow-hidden relative z-10 glass">
+      <!-- Header -->
+      <div class="p-6 md:p-8 text-center border-b border-[#2a2e3d] bg-[#1e2230]/50">
+        <div class="h-16 w-16 md:h-20 md:w-20 mx-auto bg-primary/20 text-primary rounded-3xl flex items-center justify-center mb-3.5 shadow-[0_0_25px_rgba(59,130,246,0.35)]">
+          <Utensils class="h-8 w-8 md:h-10 md:w-10" />
         </div>
-        <h1 class="text-xl font-bold text-white mb-0.5">Restoran POS</h1>
-        <p class="text-xs text-muted-foreground">Tizimga kirish uchun 4 xonali PIN kodni kiriting</p>
+        <h1 class="text-2xl md:text-3xl font-extrabold text-white mb-1 tracking-tight">Restoran POS</h1>
+        <p class="text-xs md:text-sm text-muted-foreground font-medium">Tizimga kirish uchun 4 xonali PIN kodni kiriting</p>
       </div>
 
-      <div class="p-6">
-        <div v-if="error" class="bg-red-500/10 border border-red-500/20 rounded-xl p-2.5 flex items-center justify-center gap-2 mb-4 animate-shake">
-          <ShieldAlert class="h-4 w-4 text-red-500 shrink-0" />
-          <p class="text-xs text-red-400 font-medium text-center">{{ error }}</p>
+      <!-- Content -->
+      <div class="p-6 md:p-8">
+        <div v-if="error" class="bg-red-500/10 border border-red-500/20 rounded-2xl p-3 flex items-center justify-center gap-2.5 mb-6 animate-shake">
+          <ShieldAlert class="h-5 w-5 text-red-500 shrink-0" />
+          <p class="text-xs md:text-sm text-red-400 font-bold text-center">{{ error }}</p>
         </div>
 
-        <!-- 4-Digit PIN Indicators -->
-        <div class="flex justify-center items-center gap-3.5 mb-6">
+        <!-- 4-Digit Large PIN Indicators -->
+        <div class="flex justify-center items-center gap-4 md:gap-5 mb-8">
           <div
             v-for="i in 4"
             :key="i"
             :class="[
-              'w-13 h-14 rounded-2xl border-2 flex items-center justify-center text-xl font-bold transition-all duration-200 shadow-md',
+              'w-16 h-18 md:w-20 md:h-22 rounded-2xl border-2 flex items-center justify-center text-2xl md:text-3xl font-bold transition-all duration-200 shadow-md',
               password.length >= i
-                ? 'border-blue-500 bg-blue-600/20 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.4)] scale-105'
+                ? 'border-blue-500 bg-blue-600/25 text-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.45)] scale-105'
                 : 'border-[#2a2e3d] bg-[#1e2230] text-[#3b4054]'
             ]"
           >
-            <span v-if="password.length >= i" class="text-2xl font-black animate-in fade-in zoom-in duration-150">●</span>
-            <span v-else class="text-xs text-[#3b4054] font-normal">○</span>
+            <span v-if="password.length >= i" class="text-3xl md:text-4xl font-black animate-in fade-in zoom-in duration-150">●</span>
+            <span v-else class="text-sm text-[#3b4054] font-normal">○</span>
           </div>
         </div>
 
         <!-- Touch / On-screen Keypad -->
-        <div class="grid grid-cols-3 gap-2.5 mb-5">
+        <div class="grid grid-cols-3 gap-3 md:gap-4 mb-6">
           <button
             v-for="num in [1, 2, 3, 4, 5, 6, 7, 8, 9]"
             :key="num"
             @click="handleKeyPress(num.toString())"
-            class="h-13 bg-[#212638] hover:bg-[#2a2e3d] text-white text-xl font-bold rounded-xl transition-all border border-[#2a2e3d] active:scale-95 shadow-sm cursor-pointer"
+            class="h-16 md:h-20 bg-[#212638] hover:bg-[#2a2e3d] text-white text-2xl md:text-3xl font-black rounded-2xl transition-all border border-[#2a2e3d] active:scale-95 shadow-sm cursor-pointer"
           >
             {{ num }}
           </button>
           <button
             @click="handleClear"
-            class="h-13 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-xl transition-all border border-red-500/20 active:scale-95 uppercase shadow-sm cursor-pointer"
+            class="h-16 md:h-20 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-base md:text-lg font-black rounded-2xl transition-all border border-red-500/20 active:scale-95 uppercase shadow-sm cursor-pointer"
           >
             C
           </button>
           <button
             @click="handleKeyPress('0')"
-            class="h-13 bg-[#212638] hover:bg-[#2a2e3d] text-white text-xl font-bold rounded-xl transition-all border border-[#2a2e3d] active:scale-95 shadow-sm cursor-pointer"
+            class="h-16 md:h-20 bg-[#212638] hover:bg-[#2a2e3d] text-white text-2xl md:text-3xl font-black rounded-2xl transition-all border border-[#2a2e3d] active:scale-95 shadow-sm cursor-pointer"
           >
             0
           </button>
           <button
             @click="handleDelete"
-            class="h-13 bg-[#212638] hover:bg-[#2a2e3d] text-white flex items-center justify-center rounded-xl transition-all border border-[#2a2e3d] active:scale-95 shadow-sm cursor-pointer"
+            class="h-16 md:h-20 bg-[#212638] hover:bg-[#2a2e3d] text-white flex items-center justify-center rounded-2xl transition-all border border-[#2a2e3d] active:scale-95 shadow-sm cursor-pointer"
           >
-            <Delete class="h-5 w-5" />
+            <Delete class="h-7 w-7 md:h-8 md:w-8" />
           </button>
         </div>
 
         <button
           @click="handleSubmit"
           :disabled="isSubmitting"
-          class="w-full bg-primary hover:bg-blue-600 text-white rounded-xl py-3.5 font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] active:scale-[0.98] cursor-pointer disabled:opacity-50"
+          class="w-full bg-primary hover:bg-blue-600 text-white rounded-2xl py-4 md:py-4.5 font-extrabold text-base md:text-lg flex items-center justify-center gap-2 transition-all shadow-[0_0_25px_rgba(59,130,246,0.25)] hover:shadow-[0_0_35px_rgba(59,130,246,0.45)] active:scale-[0.98] cursor-pointer disabled:opacity-50"
         >
-          <span v-if="isSubmitting" class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+          <span v-if="isSubmitting" class="animate-spin rounded-full h-5 w-5 border-3 border-white border-t-transparent"></span>
           <span v-else>Tizimga kirish</span>
         </button>
       </div>
