@@ -1,5 +1,5 @@
 {
-  "name": "amaliyot-front",
+  "name": "ohlala-front",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -44,8 +44,8 @@
     "vite": "^8.1.1"
   },
   "build": {
-    "appId": "com.kitchen.app",
-    "productName": "Kitchen App",
+    "appId": "com.ohlala.pos",
+    "productName": "Ohlala POS",
     "directories": {
       "output": "dist-electron"
     },
@@ -56,7 +56,24 @@
       "package.json"
     ],
     "win": {
-      "target": "nsis"
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Ohlala POS",
+      "uninstallDisplayName": "Ohlala POS",
+      "include": "installer.nsh"
     },
     "mac": {
       "target": [

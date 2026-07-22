@@ -911,7 +911,7 @@
       <div class="hidden" id="printable-receipt">
         <div>
           <div class="text-center space-y-1 mb-4">
-            <h3 class="text-lg font-extrabold tracking-wider text-black">KITCHEN RESTAURANT</h3>
+            <h3 class="text-lg font-extrabold tracking-wider text-black">OHLALA RESTAURANT</h3>
             <p class="text-[10px] text-gray-500 font-sans">Toshkent, O'zbekiston | Tel: +998 90 123 45 67</p>
           </div>
           
@@ -1227,7 +1227,7 @@
         <div v-show="checkoutTab === 'RECEIPT'" class="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center bg-[#0d0e15]">
           <div class="w-full max-w-sm bg-white text-black p-6 rounded-2xl shadow-2xl font-mono text-xs my-auto space-y-4 border border-gray-200">
             <div class="text-center space-y-1 mb-4">
-              <h3 class="text-lg font-extrabold tracking-wider text-black">KITCHEN RESTAURANT</h3>
+              <h3 class="text-lg font-extrabold tracking-wider text-black">OHLALA RESTAURANT</h3>
               <p class="text-[10px] text-gray-500 font-sans">Toshkent, O'zbekiston | Tel: +998 90 123 45 67</p>
             </div>
             
@@ -3115,7 +3115,7 @@ export default {
         <!DOCTYPE html>
         <html>
           <head>
-            <title>KITCHEN RESTAURANT - CHEK</title>
+            <title>OHLALA RESTAURANT - CHEK</title>
             <style>
               @page { margin: 0; size: ${paperWidth} auto; }
               body {

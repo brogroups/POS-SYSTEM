@@ -99,11 +99,24 @@ function createWindow() {
   });
 }
 
-app.on('ready', () => {
-  createMenu();
-  createWindow();
-  registerShortcuts();
-});
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+
+  app.on('ready', () => {
+    createMenu();
+    createWindow();
+    registerShortcuts();
+  });
+}
 
 app.on('will-quit', () => {
   globalShortcut.unregisterAll();

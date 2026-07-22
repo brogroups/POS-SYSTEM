@@ -1,5 +1,5 @@
 {
-  "appId": "com.kitchen.pos",
-  "appName": "Kitchen App",
+  "appId": "com.ohlala.pos",
+  "appName": "Ohlala POS",
   "webDir": "dist"
 }

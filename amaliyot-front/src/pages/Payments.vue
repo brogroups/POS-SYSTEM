@@ -362,7 +362,7 @@ export default {
             </style>
           </head>
           <body>
-            <div class="text-center font-bold">KITCHEN RESTAURANT</div>
+            <div class="text-center font-bold">OHLALA RESTAURANT</div>
             <div class="text-center">TO'LOV CHEKI (DUBILIKAT)</div>
             <div class="divider"></div>
             <div class="flex"><span>Chek ID:</span><span>#${this.getShortId(p.id, this.selectedPaymentIndex)}</span></div>

@@ -197,7 +197,7 @@ export default {
             </style>
           </head>
           <body>
-            <h2>KITCHEN POS</h2>
+            <h2>OHLALA POS</h2>
             <p>USB PRINTER TEST CHEK</p>
             <div class="divider"></div>
             <p>Ulanish turi: USB Termo-Printer</p>
