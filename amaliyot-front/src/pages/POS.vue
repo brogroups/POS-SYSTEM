@@ -2576,7 +2576,7 @@ export default {
           };
         }
 
-        appContext.showAlert("Muvaffaqiyatli", "Buyurtma saqlandi va yangilandi!");
+        appContext.addNotification("Buyurtma Saqlandi", "Buyurtma saqlandi va yangilandi!", "SUCCESS");
         this.fetchData();
       } catch (err) {
         console.error(err);
