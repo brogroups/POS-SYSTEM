@@ -44,29 +44,22 @@
     <!-- Nav Links -->
     <div class="flex-1 overflow-y-auto py-3">
       <nav :class="['space-y-1', state.isSidebarCollapsed ? 'px-2' : 'px-3']">
-        <router-link
+        <button
           v-for="item in navItems"
           :key="item.name"
-          :to="item.path"
-          custom
-          v-slot="{ isActive, href, navigate }"
+          @click="handleNavigate(item.path)"
+          :title="state.isSidebarCollapsed ? item.name : ''"
+          :class="[
+            'w-full flex items-center rounded-xl py-2.5 transition-all duration-200 cursor-pointer text-left',
+            state.isSidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3 text-sm font-medium',
+            $route.path === item.path
+              ? 'bg-[#212638] text-primary shadow-sm border border-primary/30'
+              : 'text-muted-foreground hover:bg-[#212638] hover:text-white'
+          ]"
         >
-          <a
-            :href="href"
-            @click="(e) => { e.preventDefault(); navigate(e); }"
-            :title="state.isSidebarCollapsed ? item.name : ''"
-            :class="[
-              'flex items-center rounded-xl py-2.5 transition-all duration-200 cursor-pointer',
-              state.isSidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3 text-sm font-medium',
-              isActive
-                ? 'bg-[#212638] text-primary shadow-sm border border-primary/30'
-                : 'text-muted-foreground hover:bg-[#212638] hover:text-white'
-            ]"
-          >
-            <component :is="item.icon" class="h-5 w-5 shrink-0" />
-            <span v-if="!state.isSidebarCollapsed" class="truncate">{{ item.name }}</span>
-          </a>
-        </router-link>
+          <component :is="item.icon" class="h-5 w-5 shrink-0" />
+          <span v-if="!state.isSidebarCollapsed" class="truncate">{{ item.name }}</span>
+        </button>
       </nav>
     </div>
 
@@ -448,6 +441,12 @@ export default {
           this.$router.push("/login");
         }
       );
+    },
+    handleNavigate(path) {
+      if (this.$route.path !== path) {
+        this.$router.push(path).catch(() => {});
+      }
+      this.closeSidebar();
     },
     closeSidebar() {
       appContext.closeSidebar();

@@ -96,30 +96,30 @@
 
     <!-- QUICK MANAGEMENT SHORTCUTS -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-      <router-link to="/pos" class="bg-[#181b25] border border-[#2a2e3d] hover:border-blue-500/50 p-4 rounded-2xl flex flex-col items-center justify-center text-center gap-2 group transition-all cursor-pointer shadow-md">
+      <button @click="$router.push('/pos')" class="bg-[#181b25] border border-[#2a2e3d] hover:border-blue-500/50 p-4 rounded-2xl flex flex-col items-center justify-center text-center gap-2 group transition-all cursor-pointer shadow-md">
         <div class="p-3 bg-blue-500/10 text-blue-400 rounded-xl group-hover:scale-110 transition-transform">
           <MonitorSmartphone class="h-6 w-6" />
         </div>
         <span class="text-xs font-bold text-white">Stollar & POS</span>
-      </router-link>
-      <router-link to="/products" class="bg-[#181b25] border border-[#2a2e3d] hover:border-purple-500/50 p-4 rounded-2xl flex flex-col items-center justify-center text-center gap-2 group transition-all cursor-pointer shadow-md">
+      </button>
+      <button @click="$router.push('/products')" class="bg-[#181b25] border border-[#2a2e3d] hover:border-purple-500/50 p-4 rounded-2xl flex flex-col items-center justify-center text-center gap-2 group transition-all cursor-pointer shadow-md">
         <div class="p-3 bg-purple-500/10 text-purple-400 rounded-xl group-hover:scale-110 transition-transform">
           <Utensils class="h-6 w-6" />
         </div>
         <span class="text-xs font-bold text-white">Menyu & Reseptlar</span>
-      </router-link>
-      <router-link to="/inventory" class="bg-[#181b25] border border-[#2a2e3d] hover:border-emerald-500/50 p-4 rounded-2xl flex flex-col items-center justify-center text-center gap-2 group transition-all cursor-pointer shadow-md">
+      </button>
+      <button @click="$router.push('/inventory')" class="bg-[#181b25] border border-[#2a2e3d] hover:border-emerald-500/50 p-4 rounded-2xl flex flex-col items-center justify-center text-center gap-2 group transition-all cursor-pointer shadow-md">
         <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl group-hover:scale-110 transition-transform">
           <Package class="h-6 w-6" />
         </div>
         <span class="text-xs font-bold text-white">Ombor & Tamaki</span>
-      </router-link>
-      <router-link to="/expenses" class="bg-[#181b25] border border-[#2a2e3d] hover:border-rose-500/50 p-4 rounded-2xl flex flex-col items-center justify-center text-center gap-2 group transition-all cursor-pointer shadow-md">
+      </button>
+      <button @click="$router.push('/expenses')" class="bg-[#181b25] border border-[#2a2e3d] hover:border-rose-500/50 p-4 rounded-2xl flex flex-col items-center justify-center text-center gap-2 group transition-all cursor-pointer shadow-md">
         <div class="p-3 bg-rose-500/10 text-rose-400 rounded-xl group-hover:scale-110 transition-transform">
           <Receipt class="h-6 w-6" />
         </div>
         <span class="text-xs font-bold text-white">Kunlik Rasxodlar</span>
-      </router-link>
+      </button>
     </div>
 
     <!-- Chart and Popular Dishes -->
