@@ -1,7 +1,7 @@
 {
   "name": "ohlala-front",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.2.3",
   "description": "Ohlala POS System Application",
   "author": "Ohlala POS",
   "type": "module",
@@ -46,8 +46,8 @@
     "vite": "^8.1.1"
   },
   "build": {
-    "appId": "com.ohlala.pos",
-    "productName": "Ohlala POS",
+    "appId": "com.ohlala.posdesktop",
+    "productName": "Ohlala POS Desktop",
     "directories": {
       "output": "dist-electron"
     },
@@ -73,8 +73,8 @@
       "allowElevation": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Ohlala POS",
-      "uninstallDisplayName": "Ohlala POS",
+      "shortcutName": "Ohlala POS Desktop",
+      "uninstallDisplayName": "Ohlala POS Desktop",
       "include": "installer.nsh"
     },
     "mac": {

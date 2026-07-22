@@ -1,11 +1,26 @@
 !macro customInit
-  nsExec::Exec `taskkill /F /IM "Kitchen App.exe"`
-  nsExec::Exec `taskkill /F /IM "Ohlala POS.exe"`
-  nsExec::Exec `taskkill /F /IM "ohlala-front.exe"`
+  ExecWait '$SYSDIR\taskkill.exe /F /T /IM "Ohlala POS Desktop.exe"'
+  ExecWait '$SYSDIR\taskkill.exe /F /T /IM "Ohlala POS.exe"'
+  ExecWait '$SYSDIR\taskkill.exe /F /T /IM "Kitchen App.exe"'
+  ExecWait '$SYSDIR\taskkill.exe /F /T /IM "ohlala-front.exe"'
+  Sleep 1500
 !macroend
 
 !macro customInstall
-  nsExec::Exec `taskkill /F /IM "Kitchen App.exe"`
-  nsExec::Exec `taskkill /F /IM "Ohlala POS.exe"`
-  nsExec::Exec `taskkill /F /IM "ohlala-front.exe"`
+  ExecWait '$SYSDIR\taskkill.exe /F /T /IM "Ohlala POS Desktop.exe"'
+  ExecWait '$SYSDIR\taskkill.exe /F /T /IM "Ohlala POS.exe"'
+  ExecWait '$SYSDIR\taskkill.exe /F /T /IM "Kitchen App.exe"'
+  ExecWait '$SYSDIR\taskkill.exe /F /T /IM "ohlala-front.exe"'
+  Sleep 1500
 !macroend
+
+!macro customUnInstall
+  ExecWait '$SYSDIR\taskkill.exe /F /T /IM "Ohlala POS Desktop.exe"'
+  ExecWait '$SYSDIR\taskkill.exe /F /T /IM "Ohlala POS.exe"'
+  ExecWait '$SYSDIR\taskkill.exe /F /T /IM "Kitchen App.exe"'
+  ExecWait '$SYSDIR\taskkill.exe /F /T /IM "ohlala-front.exe"'
+  Sleep 1500
+!macroend
+
+
+
