@@ -2276,15 +2276,13 @@ export default {
       }
     },
     selectedTable(val) {
+      this.selectedSessionId = null;
       if (!val) {
         this.isMobileCartOpen = false;
         this.editModeCart = [];
       } else {
         if (this.currentTableSessions && this.currentTableSessions.length > 0) {
-          const hasSelected = this.currentTableSessions.some(s => s.id === this.selectedSessionId);
-          if (!hasSelected) {
-            this.selectedSessionId = this.currentTableSessions[0].id;
-          }
+          this.selectedSessionId = this.currentTableSessions[0].id;
         }
         this.initEditModeCart();
       }
