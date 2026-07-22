@@ -152,11 +152,7 @@ export default {
             localStorage.setItem("shiftStartTime", new Date().toISOString());
           }
           
-          appContext.showAlert(
-            "Xush kelibsiz!",
-            "Tizimga muvaffaqiyatli kirdingiz. Ish kuningiz serdaromad bo'lsin!",
-            "success"
-          );
+          appContext.addNotification("Xush Kelibsiz!", "Tizimga muvaffaqiyatli kirdingiz!", "SUCCESS");
           
           if (result.role === "CHEF") {
             this.$router.push("/chef");
