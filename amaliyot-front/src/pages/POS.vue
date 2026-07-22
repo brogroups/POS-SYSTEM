@@ -194,53 +194,56 @@
     
     <template v-else>
       <!-- --- TABLES LAYOUT VIEW --- -->
-      <div class="flex-1 flex flex-col min-w-0">
+      <div class="flex-1 flex flex-col">
         <!-- Room Tabs & Floor Controls Header Bar -->
-        <div class="flex items-center justify-between gap-3 mb-4 shrink-0 overflow-x-auto">
+        <div class="flex items-center justify-between gap-4 mb-4 shrink-0 overflow-x-auto bg-[#181b25]/80 p-2 rounded-2xl border border-[#2a2e3d] shadow-lg">
           <!-- Room Tabs (Zallar) -->
-          <div class="flex items-center gap-2 overflow-x-auto">
+          <div class="flex items-center gap-2 overflow-x-auto p-0.5">
             <button 
               v-for="tab in zallar"
               :key="tab"
               @click="activeTab = tab"
               :class="[
-                'px-4 py-2 text-xs md:text-sm font-bold rounded-xl transition-all duration-200 border whitespace-nowrap cursor-pointer',
+                'px-6 py-3 text-sm md:text-base font-extrabold rounded-xl transition-all duration-200 border whitespace-nowrap cursor-pointer flex items-center gap-2',
                 activeTab === tab 
-                  ? 'bg-white/10 backdrop-blur-sm text-white border-white/30 shadow-lg' 
-                  : 'bg-transparent text-white/60 border-white/10 hover:text-white hover:bg-white/5'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-400/50 shadow-lg shadow-blue-500/30 scale-102' 
+                  : 'bg-[#1e2230] text-[#94a3b8] border-[#2a2e3d] hover:text-white hover:bg-[#2a2e3d]'
               ]"
             >
+              <span class="w-2 h-2 rounded-full" :class="activeTab === tab ? 'bg-white animate-pulse' : 'bg-[#94a3b8]/40'"></span>
               {{ tab }}
             </button>
           </div>
 
           <!-- Right Controls: Add Table, View Mode Toggle, Notification Bell -->
-          <div class="flex items-center gap-2 shrink-0">
+          <div class="flex items-center gap-3 shrink-0 pr-1">
             <button 
               v-if="isPrivileged"
               @click="handleOpenTableModal()"
-              class="flex items-center gap-1.5 bg-[#3b82f6] hover:bg-[#2563eb] text-white px-3 py-2 rounded-xl transition-colors text-xs font-bold shadow-sm cursor-pointer whitespace-nowrap"
+              class="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-5 py-3 rounded-xl transition-all text-sm font-bold shadow-lg shadow-blue-500/20 cursor-pointer whitespace-nowrap active:scale-95"
             >
-              <Plus class="h-3.5 w-3.5" />
+              <Plus class="h-4 w-4" />
               Yangi Stol
             </button>
-            <div class="flex bg-[#1e2230] border border-[#2a2e3d] rounded-xl p-0.5 shrink-0">
+            <div class="flex bg-[#1e2230] border border-[#2a2e3d] rounded-xl p-1 shrink-0 gap-1">
               <button 
                 @click="viewMode = 'grid'"
-                :class="['p-1.5 rounded-lg transition-colors cursor-pointer', viewMode === 'grid' ? 'bg-[#2a2e3d] text-white' : 'text-[#94a3b8] hover:text-white']"
+                :class="['p-2 rounded-lg transition-colors cursor-pointer', viewMode === 'grid' ? 'bg-[#2a2e3d] text-white shadow-sm' : 'text-[#94a3b8] hover:text-white']"
+                title="Kataklar ko'rinishi"
               >
-                <Grid class="h-3.5 w-3.5" />
+                <Grid class="h-4 w-4" />
               </button>
               <button 
                 @click="viewMode = 'list'"
-                :class="['p-1.5 rounded-lg transition-colors cursor-pointer', viewMode === 'list' ? 'bg-[#2a2e3d] text-white' : 'text-[#94a3b8] hover:text-white']"
+                :class="['p-2 rounded-lg transition-colors cursor-pointer', viewMode === 'list' ? 'bg-[#2a2e3d] text-white shadow-sm' : 'text-[#94a3b8] hover:text-white']"
+                title="Ro'yxat ko'rinishi"
               >
-                <Menu class="h-3.5 w-3.5" />
+                <Menu class="h-4 w-4" />
               </button>
             </div>
-            <button @click="isNotificationModalOpen = true" class="relative p-2 bg-[#1e2230] border border-[#2a2e3d] rounded-xl text-[#94a3b8] hover:text-white cursor-pointer shrink-0 transition-colors" title="Bildirishnomalar">
-              <Bell class="h-4 w-4 text-blue-400" />
-              <span v-if="unreadNotificationsCount > 0" class="absolute -top-1 -right-1 min-w-3.5 h-3.5 px-1 bg-rose-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center animate-pulse">{{ unreadNotificationsCount }}</span>
+            <button @click="isNotificationModalOpen = true" class="relative p-2.5 bg-[#1e2230] border border-[#2a2e3d] rounded-xl text-[#94a3b8] hover:text-white cursor-pointer shrink-0 transition-colors" title="Bildirishnomalar">
+              <Bell class="h-5 w-5 text-blue-400" />
+              <span v-if="unreadNotificationsCount > 0" class="absolute -top-1 -right-1 min-w-4 h-4 px-1 bg-rose-500 text-white text-[9px] font-black rounded-full flex items-center justify-center animate-pulse shadow-sm">{{ unreadNotificationsCount }}</span>
             </button>
           </div>
         </div>
