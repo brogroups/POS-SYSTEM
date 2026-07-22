@@ -718,15 +718,9 @@
             <span class="text-xl font-bold text-white">{{ formatNumber(totalAmount) }} so'm</span>
           </div>
           
-          <div class="grid grid-cols-2 gap-3 mb-3">
-            <button 
-              @click="openReservationForm"
-              class="py-3 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 rounded-xl font-medium transition-colors border border-yellow-500/20 flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <Calendar class="h-4 w-4" /> Bron Qilish
-            </button>
-            <button @click="handleSendOrder" class="py-3 bg-[#3b82f6] hover:bg-[#2563eb] text-white rounded-xl font-medium transition-colors shadow-lg shadow-blue-500/20 cursor-pointer">
-              Saqlash
+          <div class="mb-3">
+            <button @click="handleSendOrder" class="w-full py-3.5 bg-[#3b82f6] hover:bg-[#2563eb] text-white rounded-xl font-bold text-base transition-colors shadow-lg shadow-blue-500/20 cursor-pointer">
+              Saqlash (Buyurtma Berish)
             </button>
           </div>
         </div>
