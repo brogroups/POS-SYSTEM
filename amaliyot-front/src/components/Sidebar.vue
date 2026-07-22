@@ -374,12 +374,40 @@ export default {
         return;
       }
       this.selectedRole = r;
+      this.password = "";
+      this.error = "";
       this.showRoles = false;
-      this.$nextTick(() => {
-        if (this.$refs.passwordInput) {
-          this.$refs.passwordInput.focus();
+    },
+    handleKeyPress(num) {
+      if (this.password.length < 4) {
+        this.password += num;
+        this.error = "";
+        if (this.password.length === 4) {
+          setTimeout(() => {
+            this.handlePasswordSubmit();
+          }, 120);
         }
-      });
+      }
+    },
+    handleModalKeyDown(e) {
+      if (!this.selectedRole) return;
+      if (e.key >= "0" && e.key <= "9") {
+        this.handleKeyPress(e.key);
+      } else if (e.key === "Backspace") {
+        this.password = this.password.slice(0, -1);
+        this.error = "";
+      } else if (e.key === "Escape" || e.key === "c" || e.key === "C") {
+        this.cancelRoleChange();
+      } else if (e.key === "Enter") {
+        this.handlePasswordSubmit();
+      }
+    },
+    goToLoginPage() {
+      this.selectedRole = null;
+      this.password = "";
+      this.error = "";
+      appContext.logout();
+      this.$router.push("/login");
     },
     handlePasswordSubmit() {
       if (ROLE_PASSWORDS[this.selectedRole] === this.password) {
@@ -402,7 +430,8 @@ export default {
         else if (targetRole === "SUPERADMIN" || targetRole === "MANAGER") this.$router.push("/");
         else this.$router.push("/pos");
       } else {
-        this.error = "Noto'g'ri parol!";
+        this.error = "Noto'g'ri PIN kod!";
+        this.password = "";
       }
     },
     cancelRoleChange() {
@@ -426,6 +455,12 @@ export default {
     toggleCollapse() {
       appContext.toggleSidebarCollapsed();
     },
+  },
+  mounted() {
+    window.addEventListener("keydown", this.handleModalKeyDown);
+  },
+  beforeUnmount() {
+    window.removeEventListener("keydown", this.handleModalKeyDown);
   },
 };
 </script>
