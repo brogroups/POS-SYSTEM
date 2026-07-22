@@ -1912,14 +1912,12 @@ export default {
     },
     currentOccupiedOrder() {
       if (!this.selectedTable) return null;
-      const tId = String(this.selectedTable.id || this.selectedTable._id || "");
-      const tNum = String(this.selectedTable.table_number || this.selectedTable.tableNumber || "");
-      if (this.selectedSessionId) {
-        const sId = String(this.selectedSessionId);
-        const found = (this.activeOrders || []).find(o => String(o.id || o._id) === sId);
-        if (found && found.status !== "COMPLETED" && found.status !== "CANCELLED") return found;
-      }
       const sessions = this.currentTableSessions;
+      if (this.selectedSessionId && sessions.length > 0) {
+        const sId = String(this.selectedSessionId);
+        const found = sessions.find(o => String(o.id || o._id) === sId);
+        if (found) return found;
+      }
       return sessions.length > 0 ? sessions[0] : null;
     },
     hasEditChanges() {
