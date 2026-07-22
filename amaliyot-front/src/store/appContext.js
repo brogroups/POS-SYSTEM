@@ -3,11 +3,10 @@ import api from "../services/api";
 import { io } from "socket.io-client";
 
 export const ROLE_PASSWORDS = {
-  SUPERADMIN: "1111",
+  SUPERADMIN: "9988",
   MANAGER: "2222",
   CASHIER: "3333",
   WAITER: "4444",
-  CHEF: "5555",
 };
 
 export const state = reactive({

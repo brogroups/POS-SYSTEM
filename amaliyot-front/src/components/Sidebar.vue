@@ -309,7 +309,7 @@ export default {
       selectedRole: null,
       password: "",
       error: "",
-      rolesList: ["SUPERADMIN", "MANAGER", "CASHIER", "WAITER", "CHEF"],
+      rolesList: ["MANAGER", "CASHIER", "WAITER"],
       allNavItems: [
         { name: "Bosh sahifa", icon: "LayoutDashboard", path: "/", roles: ["SUPERADMIN", "MANAGER"] },
         { name: "Stollar", icon: "MonitorSmartphone", path: "/pos", roles: ["SUPERADMIN", "MANAGER", "CASHIER", "WAITER"] },

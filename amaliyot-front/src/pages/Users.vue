@@ -177,12 +177,10 @@ export default {
           { value: "MANAGER", label: "Menejer" },
           { value: "CASHIER", label: "Kassir" },
           { value: "WAITER", label: "Ofitsiant" },
-          { value: "CHEF", label: "Oshpaz" },
         ];
       } else if (r === "MANAGER") {
         return [
           { value: "WAITER", label: "Ofitsiant" },
-          { value: "CHEF", label: "Oshpaz" },
         ];
       } else {
         return [
