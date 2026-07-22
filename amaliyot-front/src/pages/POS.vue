@@ -434,16 +434,7 @@
           </div>
         </div>
         
-        <div v-if="selectedTable && !isTableOccupied(selectedTable)" class="mb-4">
-          <label class="text-xs text-[#94a3b8] font-medium block mb-1">Mijoz (Ixtiyoriy):</label>
-          <select 
-            v-model="selectedCustomerId" 
-            class="w-full bg-[#181b25] border border-[#2a2e3d] rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-500 transition-colors"
-          >
-            <option :value="null">Umumiy (Mijozsiz)</option>
-            <option v-for="c in customers" :key="c.id" :value="c.id">{{ c.name }} ({{ c.phone }})</option>
-          </select>
-        </div>
+
 
         <div class="flex gap-6 border-b border-[#2a2e3d] pb-0">
           <button class="pb-3 text-sm font-medium text-[#3b82f6] border-b-2 border-[#3b82f6]">Buyurtma</button>
