@@ -144,56 +144,118 @@
     </div>
   </div>
 
-  <!-- Role Change Password Modal -->
-  <transition
-    enter-active-class="transition duration-150 ease-out"
-    enter-from-class="transform scale-95 opacity-0"
-    enter-to-class="transform scale-100 opacity-100"
-    leave-active-class="transition duration-100 ease-in"
-    leave-from-class="transform scale-100 opacity-100"
-    leave-to-class="transform scale-95 opacity-0"
-  >
-    <div 
-      v-if="selectedRole"
-      class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+  <!-- Role Change Password Modal — Centered Fullscreen Overlay -->
+  <teleport to="body">
+    <transition
+      enter-active-class="transition duration-200 ease-out"
+      enter-from-class="transform scale-95 opacity-0"
+      enter-to-class="transform scale-100 opacity-100"
+      leave-active-class="transition duration-150 ease-in"
+      leave-from-class="transform scale-100 opacity-100"
+      leave-to-class="transform scale-95 opacity-0"
     >
       <div 
-        class="bg-[#181b25] border border-[#2a2e3d] w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden"
+        v-if="selectedRole"
+        class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md select-none"
       >
-        <div class="p-5 border-b border-[#2a2e3d] flex justify-between items-center bg-[#1e2230]">
-          <h3 class="font-bold text-white">Tasdiqlash</h3>
-          <button @click="cancelRoleChange" class="text-muted-foreground hover:text-white p-1 bg-[#2a2e3d] rounded-lg cursor-pointer">
-            <X class="h-4 w-4" />
-          </button>
-        </div>
-        <form @submit.prevent="handlePasswordSubmit" class="p-6 space-y-5">
-          <div class="text-center mb-2">
-            <p class="text-sm text-muted-foreground mb-1">Quyidagi rolga o'tish uchun parolni kiriting:</p>
-            <p class="font-bold text-lg text-primary">{{ selectedRole }}</p>
-          </div>
-          
-          <p v-if="error" class="text-xs text-red-400 text-center font-medium bg-red-500/10 py-2 rounded-lg">{{ error }}</p>
-
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Lock class="h-4 w-4 text-muted-foreground" />
+        <div 
+          class="bg-[#181b25] border border-[#2a2e3d] w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden glass animate-in zoom-in-95 duration-200"
+        >
+          <div class="p-5 border-b border-[#2a2e3d] flex justify-between items-center bg-[#1e2230]/70">
+            <div class="flex items-center gap-2.5">
+              <div class="h-8 w-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">
+                <Lock class="h-4 w-4" />
+              </div>
+              <div>
+                <h3 class="font-bold text-white text-base leading-tight">Rolni Tasdiqlash</h3>
+                <p class="text-[10px] text-muted-foreground">Tizim holatini almashtirish</p>
+              </div>
             </div>
-            <input 
-              type="password" 
-              ref="passwordInput"
-              v-model="password"
-              placeholder="Parolni kiriting" 
-              class="w-full bg-[#1e2230] border border-[#2a2e3d] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-            />
+            <button @click="cancelRoleChange" class="text-[#94a3b8] hover:text-white p-1.5 bg-[#2a2e3d] rounded-xl cursor-pointer transition-colors">
+              <X class="h-4 w-4" />
+            </button>
           </div>
-          
-          <button type="submit" class="w-full py-2.5 bg-primary text-white rounded-xl font-medium hover:opacity-90 transition-opacity cursor-pointer">
-            O'tish
-          </button>
-        </form>
+
+          <div class="p-6">
+            <div class="text-center mb-5">
+              <p class="text-xs text-muted-foreground mb-1">Quyidagi rolga o'tish uchun 4 xonali PIN kodni kiriting:</p>
+              <span class="inline-block px-3.5 py-1 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl text-sm font-black tracking-wide">
+                {{ formatRoleName(selectedRole) }}
+              </span>
+            </div>
+
+            <div v-if="error" class="bg-red-500/10 border border-red-500/20 rounded-xl p-2.5 flex items-center justify-center gap-2 mb-4 animate-shake">
+              <ShieldAlert class="h-4 w-4 text-red-500 shrink-0" />
+              <p class="text-xs text-red-400 font-medium text-center">{{ error }}</p>
+            </div>
+
+            <!-- 4-Digit PIN Indicators -->
+            <div class="flex justify-center items-center gap-3.5 mb-5">
+              <div
+                v-for="i in 4"
+                :key="i"
+                :class="[
+                  'w-12 h-13 rounded-2xl border-2 flex items-center justify-center text-lg font-bold transition-all duration-200 shadow-md',
+                  password.length >= i
+                    ? 'border-blue-500 bg-blue-600/20 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.4)] scale-105'
+                    : 'border-[#2a2e3d] bg-[#1e2230] text-[#3b4054]'
+                ]"
+              >
+                <span v-if="password.length >= i" class="text-2xl font-black">●</span>
+                <span v-else class="text-xs text-[#3b4054]">○</span>
+              </div>
+            </div>
+
+            <!-- Touch Keypad Buttons -->
+            <div class="grid grid-cols-3 gap-2 mb-4">
+              <button
+                v-for="num in [1, 2, 3, 4, 5, 6, 7, 8, 9]"
+                :key="num"
+                @click="handleKeyPress(num.toString())"
+                class="h-12 bg-[#212638] hover:bg-[#2a2e3d] text-white text-lg font-bold rounded-xl transition-all border border-[#2a2e3d] active:scale-95 shadow-sm cursor-pointer"
+              >
+                {{ num }}
+              </button>
+              <button
+                @click="password = ''; error = ''"
+                class="h-12 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-xl transition-all border border-red-500/20 active:scale-95 uppercase shadow-sm cursor-pointer"
+              >
+                C
+              </button>
+              <button
+                @click="handleKeyPress('0')"
+                class="h-12 bg-[#212638] hover:bg-[#2a2e3d] text-white text-lg font-bold rounded-xl transition-all border border-[#2a2e3d] active:scale-95 shadow-sm cursor-pointer"
+              >
+                0
+              </button>
+              <button
+                @click="password = password.slice(0, -1); error = ''"
+                class="h-12 bg-[#212638] hover:bg-[#2a2e3d] text-white flex items-center justify-center rounded-xl transition-all border border-[#2a2e3d] active:scale-95 shadow-sm cursor-pointer"
+              >
+                <Delete class="h-5 w-5" />
+              </button>
+            </div>
+
+            <div class="space-y-2">
+              <button 
+                @click="handlePasswordSubmit" 
+                class="w-full py-3 bg-primary hover:bg-blue-600 text-white rounded-xl font-bold text-sm transition-all shadow-[0_0_20px_rgba(59,130,246,0.2)] active:scale-[0.98] cursor-pointer"
+              >
+                O'tish
+              </button>
+
+              <button 
+                @click="goToLoginPage" 
+                class="w-full py-2.5 bg-[#1e2230] hover:bg-[#2a2e3d] text-[#94a3b8] hover:text-white rounded-xl text-xs font-medium border border-[#2a2e3d] transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <LogIn class="h-3.5 w-3.5" /> Login sahifasiga o'tish
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </transition>
+    </transition>
+  </teleport>
 </template>
 
 <script>
@@ -215,7 +277,10 @@ import {
   ShoppingBag,
   FileText,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  Delete,
+  ShieldAlert,
+  LogIn
 } from "lucide-vue-next";
 import { appContext, ROLE_PASSWORDS } from "../store/appContext";
 
@@ -239,7 +304,10 @@ export default {
     ShoppingBag,
     FileText,
     PanelLeftClose,
-    PanelLeftOpen
+    PanelLeftOpen,
+    Delete,
+    ShieldAlert,
+    LogIn
   },
   data() {
     return {

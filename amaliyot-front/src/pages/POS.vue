@@ -40,11 +40,11 @@
             <!-- UI Scale Selector -->
             <div class="flex bg-[#1e2230] border border-[#2a2e3d] rounded-lg p-0.5 text-xs">
               <button 
-                v-for="scaleVal in [0.85, 0.95, 1.0]"
+                v-for="scaleVal in [0.75, 0.85, 0.95, 1.0]"
                 :key="scaleVal"
                 @click="changeScale(scaleVal)"
                 :class="[
-                  'px-2 py-1 rounded text-[11px] font-bold cursor-pointer transition-colors',
+                  'px-1.5 py-1 rounded text-[10px] font-bold cursor-pointer transition-colors',
                   (state.uiScale || 1.0) === scaleVal ? 'bg-blue-600 text-white' : 'text-[#94a3b8] hover:text-white'
                 ]"
               >
@@ -53,13 +53,13 @@
             </div>
 
             <!-- Search food input -->
-            <div class="relative w-48 sm:w-56">
-              <Search class="absolute left-3 top-2.5 h-3.5 w-3.5 text-[#94a3b8]" />
+            <div class="relative w-40 sm:w-48 md:w-56">
+              <Search class="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-[#94a3b8]" />
               <input 
                 type="text" 
                 placeholder="Taom qidirish..." 
                 v-model="searchQuery"
-                class="w-full bg-[#1e2230] border border-[#2a2e3d] rounded-xl pl-8 pr-3 py-2 text-xs text-white outline-none focus:border-[#3b82f6]"
+                class="w-full bg-[#1e2230] border border-[#2a2e3d] rounded-xl pl-8 pr-3 py-1.5 text-xs text-white outline-none focus:border-[#3b82f6]"
               />
             </div>
           </div>
@@ -67,11 +67,11 @@
 
         <!-- Menu categories tabs — premium pill buttons -->
         <div class="flex items-center justify-between gap-2 overflow-x-auto pb-1 scrollbar-none shrink-0">
-          <div class="flex gap-2 overflow-x-auto scrollbar-none">
+          <div class="flex gap-1.5 overflow-x-auto scrollbar-none">
             <button 
               @click="selectedCategory = 'ALL'"
               :class="[
-                'px-4 py-1.5 text-xs font-bold rounded-full border transition-all duration-200 whitespace-nowrap cursor-pointer',
+                'px-3.5 py-1 text-xs font-bold rounded-full border transition-all duration-200 whitespace-nowrap cursor-pointer',
                 selectedCategory === 'ALL' 
                   ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-transparent shadow-lg shadow-blue-500/30' 
                   : 'bg-[#1e2230] text-[#94a3b8] border-[#2a2e3d] hover:text-white hover:border-[#3b4054]'
@@ -84,7 +84,7 @@
               :key="cat.id"
               @click="selectedCategory = cat.id"
               :class="[
-                'px-4 py-1.5 text-xs font-bold rounded-full border transition-all duration-200 whitespace-nowrap cursor-pointer',
+                'px-3.5 py-1 text-xs font-bold rounded-full border transition-all duration-200 whitespace-nowrap cursor-pointer',
                 selectedCategory === cat.id 
                   ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-transparent shadow-lg shadow-blue-500/30' 
                   : 'bg-[#1e2230] text-[#94a3b8] border-[#2a2e3d] hover:text-white hover:border-[#3b4054]'
@@ -95,14 +95,14 @@
           </div>
           <button 
             @click="isCustomItemModalOpen = true"
-            class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 text-xs font-bold transition-all cursor-pointer shadow-md shrink-0 active:scale-95 whitespace-nowrap"
+            class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 text-xs font-bold transition-all cursor-pointer shadow-md shrink-0 active:scale-95 whitespace-nowrap"
           >
             <Plus class="h-3.5 w-3.5 text-purple-400" /> ⚡ Erkin Mahsulot
           </button>
         </div>
 
         <!-- Products grid — Responsive POS Cards -->
-        <div class="flex-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 overflow-y-auto content-start pb-4 pr-1">
+        <div class="flex-1 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2.5 md:gap-3 overflow-y-auto content-start pb-4 pr-1">
           <div 
             v-for="(p, idx) in filteredProducts"
             :key="p.id"
