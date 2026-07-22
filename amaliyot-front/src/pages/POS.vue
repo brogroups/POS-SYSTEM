@@ -2932,7 +2932,7 @@ export default {
             total_amount: newTotal,
             final_amount: newTotal,
           });
-          appContext.showAlert("Muvaffaqiyatli", "Buyurtmaga yangi taomlar qo'shildi!");
+          appContext.addNotification("Taomlar Qo'shildi", "Buyurtmaga yangi taomlar qo'shildi!", "SUCCESS");
         } else {
           const payload = {
             branch_id: currentUser?.branch_id || "000000000000000000000001",
@@ -2956,7 +2956,7 @@ export default {
           };
           await api.post("/orders", payload);
           await api.put(`/restaurant-tables/${this.selectedTable.id}`, { status: "OCCUPIED" });
-          appContext.showAlert("Muvaffaqiyatli", "Yangi buyurtma yaratildi va stol band qilindi!");
+          appContext.addNotification("Buyurtma Yaratildi ⚡", "Yangi buyurtma yaratildi va stol band qilindi!", "SUCCESS");
         }
 
         this.updateCartForTable([]);
