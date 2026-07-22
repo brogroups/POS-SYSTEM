@@ -162,6 +162,11 @@ function createWindow() {
     }
   });
 
+  // Prevent opening new windows or tabs — keep all navigation inside the single window
+  mainWindow.webContents.setWindowOpenHandler(() => {
+    return { action: 'deny' };
+  });
+
   mainWindow.once('ready-to-show', () => {
     mainWindow.setFullScreen(true);
     mainWindow.show();

@@ -195,131 +195,67 @@
     <template v-else>
       <!-- --- TABLES LAYOUT VIEW --- -->
       <div class="flex-1 flex flex-col min-w-0">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 shrink-0">
-          <div>
-            <h1 class="text-2xl font-bold text-white">Xush kelibsiz!</h1>
-            <p class="text-[#94a3b8] text-xs md:text-sm mt-1">Stolni tanlang yoki vaqtinchalik buyurtma yarating</p>
+        <!-- Room Tabs & Floor Controls Header Bar -->
+        <div class="flex items-center justify-between gap-3 mb-4 shrink-0 overflow-x-auto">
+          <!-- Room Tabs (Zallar) -->
+          <div class="flex items-center gap-2 overflow-x-auto">
+            <button 
+              v-for="tab in zallar"
+              :key="tab"
+              @click="activeTab = tab"
+              :class="[
+                'px-4 py-2 text-xs md:text-sm font-bold rounded-xl transition-all duration-200 border whitespace-nowrap cursor-pointer',
+                activeTab === tab 
+                  ? 'bg-white/10 backdrop-blur-sm text-white border-white/30 shadow-lg' 
+                  : 'bg-transparent text-white/60 border-white/10 hover:text-white hover:bg-white/5'
+              ]"
+            >
+              {{ tab }}
+            </button>
           </div>
-          <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+
+          <!-- Right Controls: Add Table, View Mode Toggle, Notification Bell -->
+          <div class="flex items-center gap-2 shrink-0">
             <button 
               v-if="isPrivileged"
               @click="handleOpenTableModal()"
-              class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-[#3b82f6] hover:bg-[#2563eb] text-white px-4 py-2.5 rounded-xl transition-colors text-xs md:text-sm font-bold shadow-sm cursor-pointer whitespace-nowrap"
+              class="flex items-center gap-1.5 bg-[#3b82f6] hover:bg-[#2563eb] text-white px-3 py-2 rounded-xl transition-colors text-xs font-bold shadow-sm cursor-pointer whitespace-nowrap"
             >
-              <Plus class="h-4 w-4" />
+              <Plus class="h-3.5 w-3.5" />
               Yangi Stol
             </button>
-            <select class="flex-1 md:flex-none bg-[#1e2230] border border-[#2a2e3d] text-xs md:text-sm rounded-xl px-4 py-2.5 outline-none text-white cursor-pointer">
-              <option>Barcha zallar</option>
-            </select>
-            <div class="flex bg-[#1e2230] border border-[#2a2e3d] rounded-xl p-1 shrink-0">
+            <div class="flex bg-[#1e2230] border border-[#2a2e3d] rounded-xl p-0.5 shrink-0">
               <button 
                 @click="viewMode = 'grid'"
                 :class="['p-1.5 rounded-lg transition-colors cursor-pointer', viewMode === 'grid' ? 'bg-[#2a2e3d] text-white' : 'text-[#94a3b8] hover:text-white']"
               >
-                <Grid class="h-4 w-4" />
+                <Grid class="h-3.5 w-3.5" />
               </button>
               <button 
                 @click="viewMode = 'list'"
                 :class="['p-1.5 rounded-lg transition-colors cursor-pointer', viewMode === 'list' ? 'bg-[#2a2e3d] text-white' : 'text-[#94a3b8] hover:text-white']"
               >
-                <Menu class="h-4 w-4" />
+                <Menu class="h-3.5 w-3.5" />
               </button>
             </div>
-            <button @click="isNotificationModalOpen = true" class="relative p-2.5 bg-[#1e2230] border border-[#2a2e3d] rounded-xl text-[#94a3b8] hover:text-white cursor-pointer shrink-0 transition-colors">
-              <Bell class="h-4.5 w-4.5 text-blue-400" />
-              <span v-if="unreadNotificationsCount > 0" class="absolute -top-1 -right-1 min-w-4 h-4 px-1 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse">{{ unreadNotificationsCount }}</span>
+            <button @click="isNotificationModalOpen = true" class="relative p-2 bg-[#1e2230] border border-[#2a2e3d] rounded-xl text-[#94a3b8] hover:text-white cursor-pointer shrink-0 transition-colors" title="Bildirishnomalar">
+              <Bell class="h-4 w-4 text-blue-400" />
+              <span v-if="unreadNotificationsCount > 0" class="absolute -top-1 -right-1 min-w-3.5 h-3.5 px-1 bg-rose-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center animate-pulse">{{ unreadNotificationsCount }}</span>
             </button>
           </div>
         </div>
 
-        <!-- Stats Overview Bar -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 shrink-0">
-          <div class="bg-[#1e2230] border border-[#2a2e3d] rounded-xl p-4 flex items-center justify-between shadow-sm">
-            <div>
-              <p class="text-xs text-[#94a3b8] font-medium">Barcha stollar</p>
-              <p class="text-base font-bold text-white mt-1">{{ tables.length }} ta</p>
-            </div>
-            <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500">
-              <Grid class="w-4.5 h-4.5" />
-            </div>
-          </div>
-          <div class="bg-[#1e2230] border border-[#2a2e3d] rounded-xl p-4 flex items-center justify-between shadow-sm">
-            <div>
-              <p class="text-xs text-[#94a3b8] font-medium">Bo'sh stollar</p>
-              <p class="text-base font-bold text-green-400 mt-1">{{ tables.filter(t => t.status === 'AVAILABLE').length }} ta</p>
-            </div>
-            <div class="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center text-green-400">
-              <span class="w-2 h-2 rounded-full bg-[#34a853]"></span>
-            </div>
-          </div>
-          <div class="bg-[#1e2230] border border-[#2a2e3d] rounded-xl p-4 flex items-center justify-between shadow-sm">
-            <div>
-              <p class="text-xs text-[#94a3b8] font-medium">Band stollar</p>
-              <p class="text-base font-bold text-red-400 mt-1">{{ tables.filter(t => t.status === 'OCCUPIED').length }} ta</p>
-            </div>
-            <div class="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center text-red-400">
-              <span class="w-2 h-2 rounded-full bg-[#ea4335]"></span>
-            </div>
-          </div>
-          <div class="bg-[#1e2230] border border-[#2a2e3d] rounded-xl p-4 flex items-center justify-between shadow-sm">
-            <div>
-              <p class="text-xs text-[#94a3b8] font-medium">Bron qilingan</p>
-              <p class="text-base font-bold text-yellow-400 mt-1">{{ tables.filter(t => t.status === 'RESERVED').length }} ta</p>
-            </div>
-            <div class="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center text-yellow-400">
-              <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex gap-2 mb-4 overflow-x-auto">
-          <button 
-            v-for="tab in zallar"
-            :key="tab"
-            @click="activeTab = tab"
-            :class="[
-              'px-5 py-2 text-sm font-bold rounded-xl transition-all duration-200 border whitespace-nowrap cursor-pointer',
-              activeTab === tab 
-                ? 'bg-white/10 backdrop-blur-sm text-white border-white/30 shadow-lg' 
-                : 'bg-transparent text-white/60 border-white/10 hover:text-white hover:bg-white/5'
-            ]"
-          >
-            {{ tab }}
-          </button>
-        </div>
-
         <!-- Restaurant Floor Map - Premium Ambient Background -->
         <div class="flex-1 relative rounded-2xl overflow-hidden shadow-2xl" style="min-height: 420px">
-          <!-- Background image layer -->
-          <div class="absolute inset-0">
+          <!-- Background image layer with 2077 emblem logo and 0.8 blur -->
+          <div class="absolute inset-0 overflow-hidden">
             <img 
-              v-if="activeTab === 'Asosiy zal'"
-              src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1400&q=80" 
-              alt="Asosiy zal"
-              class="w-full h-full object-cover"
+              :src="hallBgImage" 
+              alt="Restaurant Floor Background" 
+              class="w-full h-full object-cover filter blur-[3px] opacity-80 scale-105"
             />
-            <img 
-              v-else-if="activeTab === 'Terrasa'"
-              src="https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?w=1400&q=80" 
-              alt="Terrasa"
-              class="w-full h-full object-cover"
-            />
-            <img 
-              v-else-if="activeTab === 'VIP zona' || activeTab === 'VIP zal'"
-              src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1400&q=80" 
-              alt="VIP zona"
-              class="w-full h-full object-cover"
-            />
-            <img 
-              v-else-if="activeTab === 'Kabina'"
-              src="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=1400&q=80" 
-              alt="Kabina"
-              class="w-full h-full object-cover"
-            />
-            <div v-else class="w-full h-full bg-gradient-to-br from-[#1a1d28] to-[#0d0f18]" />
-            <!-- Gradient Overlay -->
-            <div class="absolute inset-0" :class="(activeTab === 'VIP zona' || activeTab === 'VIP zal') ? 'bg-gradient-to-b from-[#1a0a00]/70 via-[#0d0600]/50 to-[#1a0a00]/85' : 'bg-gradient-to-b from-[#0d1117]/70 via-[#0d1117]/50 to-[#0d1117]/80'" />
+            <!-- Dark Ambient Overlay for Table Visibility -->
+            <div class="absolute inset-0 bg-gradient-to-b from-[#0f121b]/75 via-[#0f121b]/55 to-[#0f121b]/85" />
           </div>
 
           <!-- Floor grid overlay -->
@@ -392,7 +328,7 @@
             </div>
 
             <!-- Grid View -->
-            <div v-else class="flex-1 flex flex-wrap gap-6 justify-center items-center content-center">
+            <div v-else class="flex-1 overflow-y-auto max-h-full p-4 flex flex-wrap gap-6 justify-center items-start content-start custom-scrollbar">
               <button 
                 v-for="t in filteredTables"
                 :key="t.id"
@@ -1792,6 +1728,7 @@ import { Bell, Grid, Menu, MoreHorizontal, Plus, Minus, Trash2, Users, AlertOcta
 import TableIcon from "../components/TableIcon.vue";
 import { appContext } from "../store/appContext";
 import api from "../services/api";
+import hallBgImage from "../assets/hall-bg-2077.jpg";
 
 const KALYAN_SVG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231e2230' rx='16'/><path d='M50 12 v16 M40 28 h20 M50 28 v12 M38 40 h24 M42 40 l-8 20 a16 16 0 0 0 32 0 l-8-20 Z M50 60 v22 M40 82 h20' stroke='%233b82f6' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/><circle cx='50' cy='52' r='7' fill='%233b82f6' opacity='0.25'/><path d='M58 34 c12 0 20 8 20 18 v12' stroke='%2360a5fa' stroke-width='2.5' stroke-linecap='round' fill='none'/></svg>";
 
@@ -1909,6 +1846,7 @@ export default {
       // Timer state
       timeCounter: 0,
       timerInterval: null,
+      hallBgImage,
       timerStartMap: JSON.parse(localStorage.getItem("kitchen_vip_timer_map") || "{}"),
       accumulatedVipFees: JSON.parse(localStorage.getItem("kitchen_vip_accumulated_map") || "{}"),
       zallar: ["Asosiy zal", "VIP zona", "Kabina", "Terrasa"],

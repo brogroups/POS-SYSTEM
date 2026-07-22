@@ -53,7 +53,7 @@
         >
           <a
             :href="href"
-            @click="navigate"
+            @click="(e) => { e.preventDefault(); navigate(e); }"
             :title="state.isSidebarCollapsed ? item.name : ''"
             :class="[
               'flex items-center rounded-xl py-2.5 transition-all duration-200 cursor-pointer',
