@@ -196,9 +196,9 @@
       <!-- --- TABLES LAYOUT VIEW --- -->
       <div class="flex-1 flex flex-col">
         <!-- Room Tabs & Floor Controls Header Bar -->
-        <div class="flex items-center justify-between gap-4 mb-4 shrink-0 overflow-x-auto bg-[#181b25]/80 p-2 rounded-2xl border border-[#2a2e3d] shadow-lg">
+        <div class="flex items-center justify-between gap-4 mb-4 shrink-0 overflow-x-auto scrollbar-none bg-[#181b25]/80 p-2 rounded-2xl border border-[#2a2e3d] shadow-lg" style="scrollbar-width: none; -ms-overflow-style: none;">
           <!-- Room Tabs (Zallar) -->
-          <div class="flex items-center gap-2 overflow-x-auto p-0.5">
+          <div class="flex items-center gap-2 overflow-x-auto scrollbar-none p-0.5" style="scrollbar-width: none; -ms-overflow-style: none;">
             <button 
               v-for="tab in zallar"
               :key="tab"
