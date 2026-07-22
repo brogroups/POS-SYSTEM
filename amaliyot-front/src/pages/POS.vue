@@ -2774,33 +2774,37 @@ export default {
     },
     async fetchData() {
       try {
-        this.loading = true;
+        if (this.tables.length === 0) {
+          this.loading = true;
+        }
         const [tablesRes, productsRes, customersRes, ordersRes, categoriesRes, ingredientsRes, recipesRes] = await Promise.all([
-          api.get("/restaurant-tables"),
-          api.get("/products"),
-          api.get("/customers"),
-          api.get("/orders"),
-          api.get("/categories"),
+          api.get("/restaurant-tables").catch(() => ({ data: this.tables || [] })),
+          api.get("/products").catch(() => ({ data: this.products || [] })),
+          api.get("/customers").catch(() => ({ data: this.customers || [] })),
+          api.get("/orders").catch(() => ({ data: [] })),
+          api.get("/categories").catch(() => ({ data: this.categories || [] })),
           api.get("/ingredients").catch(() => ({ data: [] })),
           api.get("/recipes").catch(() => ({ data: [] }))
         ]);
         const rawTables = tablesRes.data || [];
-        this.tables = rawTables.map((t, idx) => {
-          const num = (t.table_number !== undefined && t.table_number !== null && String(t.table_number).trim() !== '')
-            ? t.table_number
-            : (idx + 1);
-          return {
-            ...t,
-            table_number: num
-          };
-        });
-        this.products = productsRes.data;
-        this.customers = customersRes.data;
-        this.categories = categoriesRes.data || [];
-        this.ingredients = ingredientsRes.data || [];
-        this.recipes = recipesRes.data || [];
+        if (rawTables.length > 0) {
+          this.tables = rawTables.map((t, idx) => {
+            const num = (t.table_number !== undefined && t.table_number !== null && String(t.table_number).trim() !== '')
+              ? t.table_number
+              : (idx + 1);
+            return {
+              ...t,
+              table_number: num
+            };
+          });
+        }
+        if (productsRes.data && productsRes.data.length > 0) this.products = productsRes.data;
+        if (customersRes.data) this.customers = customersRes.data;
+        if (categoriesRes.data && categoriesRes.data.length > 0) this.categories = categoriesRes.data;
+        if (ingredientsRes.data) this.ingredients = ingredientsRes.data;
+        if (recipesRes.data) this.recipes = recipesRes.data;
 
-        let fetchedOrders = ordersRes.data;
+        let fetchedOrders = ordersRes.data || [];
         const role = this.state.role;
         const currentUser = this.state.currentUser;
         if (role === "WAITER" && currentUser?.id) {
