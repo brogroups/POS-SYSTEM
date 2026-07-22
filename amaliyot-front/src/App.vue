@@ -106,9 +106,68 @@ export default {
   data() {
     return {
       state: appContext.state,
+      inactivityTimer: null,
+      lastActivityTime: Date.now(),
+      INACTIVITY_TIMEOUT_MS: 5 * 60 * 1000, // 5 daqiqa harakatsizlik
     };
   },
+  mounted() {
+    this.setupInactivityListeners();
+    this.resetInactivityTimer();
+  },
+  beforeUnmount() {
+    this.cleanupInactivityListeners();
+    if (this.inactivityTimer) clearTimeout(this.inactivityTimer);
+  },
+  watch: {
+    "state.isAuthenticated"(val) {
+      if (val) {
+        this.resetInactivityTimer();
+      } else if (this.inactivityTimer) {
+        clearTimeout(this.inactivityTimer);
+      }
+    },
+  },
   methods: {
+    setupInactivityListeners() {
+      const events = ["mousemove", "mousedown", "touchstart", "touchend", "keydown", "scroll", "click"];
+      events.forEach(evt => {
+        window.addEventListener(evt, this.onUserActivity, { passive: true });
+      });
+    },
+    cleanupInactivityListeners() {
+      const events = ["mousemove", "mousedown", "touchstart", "touchend", "keydown", "scroll", "click"];
+      events.forEach(evt => {
+        window.removeEventListener(evt, this.onUserActivity);
+      });
+    },
+    onUserActivity() {
+      const now = Date.now();
+      // Throttle timer reset to once per second
+      if (now - this.lastActivityTime > 1000) {
+        this.lastActivityTime = now;
+        this.resetInactivityTimer();
+      }
+    },
+    resetInactivityTimer() {
+      if (this.inactivityTimer) {
+        clearTimeout(this.inactivityTimer);
+      }
+      if (this.state.isAuthenticated) {
+        this.inactivityTimer = setTimeout(this.handleInactivityAutoLogout, this.INACTIVITY_TIMEOUT_MS);
+      }
+    },
+    handleInactivityAutoLogout() {
+      if (this.state.isAuthenticated) {
+        appContext.logout();
+        this.$router.push("/login");
+        appContext.showAlert(
+          "Seans Yakunlandi",
+          "5 daqiqa davomida ekranga tegilmagani sababli xavfsizlik yuzasidan tizimdan chiqildi.",
+          "info"
+        );
+      }
+    },
     closeAlert() {
       appContext.closeAlert();
     },
