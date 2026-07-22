@@ -3,8 +3,8 @@ import api from "../services/api";
 import { io } from "socket.io-client";
 
 export const ROLE_PASSWORDS = {
-  SUPERADMIN: "111111",
-  MANAGER: "222222",
+  SUPERADMIN: "1111",
+  MANAGER: "2222",
   CASHIER: "3333",
   WAITER: "4444",
   CHEF: "5555",
