@@ -321,7 +321,7 @@ export default {
         { name: "Bosh sahifa", icon: "LayoutDashboard", path: "/", roles: ["SUPERADMIN", "MANAGER"] },
         { name: "Stollar", icon: "MonitorSmartphone", path: "/pos", roles: ["SUPERADMIN", "MANAGER", "CASHIER", "WAITER"] },
         { name: "Menyu", icon: "Utensils", path: "/products", roles: ["SUPERADMIN", "MANAGER"] },
-        { name: "Ombor", icon: "Store", path: "/inventory", roles: ["SUPERADMIN", "MANAGER", "CASHIER", "WAITER"] },
+        { name: "Ombor", icon: "Store", path: "/inventory", roles: ["SUPERADMIN", "MANAGER", "CASHIER"] },
         { name: "Kunlik Rasxod", icon: "Receipt", path: "/expenses", roles: ["SUPERADMIN", "MANAGER", "CASHIER", "WAITER"] },
         { name: "Buyurtmalar", icon: "ShoppingCart", path: "/orders", roles: ["SUPERADMIN", "MANAGER", "CASHIER"] },
         { name: "Hisobotlar", icon: "Receipt", path: "/payments", roles: ["SUPERADMIN", "MANAGER", "CASHIER"] },

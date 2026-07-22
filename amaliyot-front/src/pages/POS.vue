@@ -306,9 +306,9 @@
               class="w-full h-full object-cover"
             />
             <img 
-              v-else-if="activeTab === 'VIP zal'"
+              v-else-if="activeTab === 'VIP zona' || activeTab === 'VIP zal'"
               src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1400&q=80" 
-              alt="VIP zal"
+              alt="VIP zona"
               class="w-full h-full object-cover"
             />
             <img 
@@ -319,7 +319,7 @@
             />
             <div v-else class="w-full h-full bg-gradient-to-br from-[#1a1d28] to-[#0d0f18]" />
             <!-- Gradient Overlay -->
-            <div class="absolute inset-0" :class="activeTab === 'VIP zal' ? 'bg-gradient-to-b from-[#1a0a00]/70 via-[#0d0600]/50 to-[#1a0a00]/85' : 'bg-gradient-to-b from-[#0d1117]/70 via-[#0d1117]/50 to-[#0d1117]/80'" />
+            <div class="absolute inset-0" :class="(activeTab === 'VIP zona' || activeTab === 'VIP zal') ? 'bg-gradient-to-b from-[#1a0a00]/70 via-[#0d0600]/50 to-[#1a0a00]/85' : 'bg-gradient-to-b from-[#0d1117]/70 via-[#0d1117]/50 to-[#0d1117]/80'" />
           </div>
 
           <!-- Floor grid overlay -->
@@ -413,6 +413,9 @@
                   :status="getTableDisplayStatus(t)" 
                   :isSelected="!!(selectedTable && selectedTable.id === t.id)" 
                 />
+                <span v-if="t.vip_price_per_hour > 0" class="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-blue-600/90 border border-blue-400 text-[8px] font-extrabold text-white z-20 shadow-md">
+                  🏷️ {{ formatNumber(t.vip_price_per_hour) }} so'm/s
+                </span>
                 <span v-if="getTableSessionsCount(t) > 1" class="absolute bottom-0 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-purple-600/90 text-[8px] font-black tracking-wider text-white uppercase z-20 shadow-lg border border-purple-400 animate-pulse whitespace-nowrap">
                   ⚡ {{ getTableSessionsCount(t) }} SEANS
                 </span>
@@ -547,7 +550,7 @@
       </div>
 
       <!-- Active order list or draft cart list -->
-      <div v-if="isTableOccupied(selectedTable) && !currentOccupiedOrder" class="flex-1 flex flex-col items-center justify-center p-8 text-center text-muted-foreground border-2 border-dashed border-red-500/20 rounded-2xl m-5 bg-red-500/5">
+      <div v-if="isTableOccupied(selectedTable) && !currentOccupiedOrder && cart.length === 0" class="flex-1 flex flex-col items-center justify-center p-8 text-center text-muted-foreground border-2 border-dashed border-red-500/20 rounded-2xl m-5 bg-red-500/5">
         <ShieldAlert class="h-10 w-10 mb-3 text-red-500 opacity-60" />
         <p class="text-sm font-bold text-red-400">Ruxsat etilmagan stol</p>
         <p class="text-xs text-[#94a3b8] mt-2">Ushbu stolda hozircha faol sessiya yo'q yoki sizga ruxsat etilmagan.</p>
@@ -559,10 +562,10 @@
           </div>
           <span class="text-xs font-bold bg-red-500/20 text-red-400 px-2 py-1 rounded">{{ getOrderDisplayId(currentOccupiedOrder) }}</span>
         </div>
-        <div v-if="editModeCart.length === 0" class="py-8 text-center text-xs text-[#94a3b8] italic">
+        <div v-if="displayCartItems.length === 0" class="py-8 text-center text-xs text-[#94a3b8] italic">
           Ushbu buyurtmada hali taomlar ro'yxati mavjud emas
         </div>
-        <div v-for="(item, idx) in editModeCart" :key="item.productId || idx" class="flex gap-3 items-center">
+        <div v-for="(item, idx) in displayCartItems" :key="item.productId || idx" class="flex gap-3 items-center">
           <div class="w-10 h-10 rounded-lg bg-[#1e2230] flex items-center justify-center border border-[#2a2e3d] overflow-hidden shrink-0">
             <img v-if="getProductImage(item.productId)" :src="getProductImage(item.productId)" class="w-full h-full object-cover" />
             <Utensils v-else class="h-4 w-4 text-muted-foreground" />
@@ -588,56 +591,33 @@
           </div>
         </div>
 
-        <!-- VIP / Kabina room countdown calculator box -->
-        <div v-if="isVipOrKabinaTable && isTableOccupied(selectedTable)" class="mt-4 p-4 bg-[#1e2230] border border-[#2a2e3d] rounded-2xl space-y-3 shadow-md">
+        <!-- Live Timer Info Box (Only when timer is active) -->
+        <div v-if="vipCalc && isTableOccupied(selectedTable)" class="mt-4 p-4 bg-[#1e2230] border border-[#2a2e3d] rounded-2xl space-y-3 shadow-md">
           <div class="flex items-center justify-between">
             <p class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-              <span>⏱️</span> {{ selectedTable?.room_name === 'Kabina' ? 'Kabina Hisoblagichi' : 'VIP Xona Hisoblagichi' }}
+              <span>⏱️</span> {{ selectedTable?.room_name === 'Kabina' ? 'Kabina Hisoblagichi' : 'Soatlik Vaqt Hisoblagichi' }}
             </p>
-            <span v-if="isTimerActive" class="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
+            <span class="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Faol
-            </span>
-            <span v-else class="text-[10px] bg-amber-500/20 text-amber-300 font-bold px-2.5 py-0.5 rounded-full border border-amber-500/30">
-              Kutilmoqda
             </span>
           </div>
 
-          <template v-if="vipCalc">
-            <div class="flex justify-between text-xs text-[#94a3b8]">
-              <span>Boshlangan vaqti:</span>
-              <span class="font-semibold text-white">{{ vipCalc.startTime }}</span>
-            </div>
-            <div class="flex justify-between text-xs text-[#94a3b8]">
-              <span>O'tgan vaqt:</span>
-              <span class="font-semibold text-white">{{ vipCalc.duration }}</span>
-            </div>
-            <div class="flex justify-between text-xs text-[#94a3b8]">
-              <span>Soatlik tarif:</span>
-              <span class="font-semibold text-white">{{ formatNumber(vipCalc.hourlyRate) }} so'm</span>
-            </div>
-            <div class="flex justify-between text-sm font-bold border-t border-[#2a2e3d] pt-2 text-amber-400">
-              <span>{{ selectedTable?.room_name === 'Kabina' ? "Kabina to'lovi:" : "VIP Xona to'lovi:" }}</span>
-              <span>{{ formatNumber(vipCalc.vipFee) }} so'm</span>
-            </div>
-            <button 
-              @click="stopVipTimer"
-              class="w-full py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
-            >
-              <Square class="h-3.5 w-3.5 fill-current" /> Timerni To'xtatish
-            </button>
-          </template>
-
-          <template v-else>
-            <p class="text-xs text-[#94a3b8] leading-relaxed">
-              Vaqt hisobi hali boshlanmagan. Soatlik to'lovni hisoblash uchun tugmani bosing:
-            </p>
-            <button 
-              @click="startVipTimer"
-              class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg cursor-pointer flex items-center justify-center gap-2"
-            >
-              <Play class="h-4 w-4 fill-current" /> Timer Boshlash
-            </button>
-          </template>
+          <div class="flex justify-between text-xs text-[#94a3b8]">
+            <span>Boshlangan vaqti:</span>
+            <span class="font-semibold text-white">{{ vipCalc.startTime }}</span>
+          </div>
+          <div class="flex justify-between text-xs text-[#94a3b8]">
+            <span>O'tgan vaqt:</span>
+            <span class="font-semibold text-white">{{ vipCalc.duration }}</span>
+          </div>
+          <div class="flex justify-between text-xs text-[#94a3b8]">
+            <span>Soatlik tarif:</span>
+            <span class="font-semibold text-white">{{ formatNumber(vipCalc.hourlyRate) }} so'm</span>
+          </div>
+          <div class="flex justify-between text-sm font-bold border-t border-[#2a2e3d] pt-2 text-amber-400">
+            <span>{{ selectedTable?.room_name === 'Kabina' ? "Kabina to'lovi:" : "Soatlik vaqt to'lovi:" }}</span>
+            <span>{{ formatNumber(vipCalc.vipFee) }} so'm</span>
+          </div>
         </div>
       </div>
       <div v-else class="flex-1 overflow-y-auto p-5 space-y-4">
@@ -731,6 +711,18 @@
                   <ArrowLeft class="h-4 w-4 rotate-180 text-blue-400" /> Ko'chirish
                 </button>
               </div>
+
+              <!-- Prominent Timer Start / Stop Action Button -->
+              <button 
+                @click="isTimerActive ? stopVipTimer() : startVipTimer()"
+                :class="[
+                  'w-full py-2.5 rounded-xl text-xs font-bold transition-all flex justify-center items-center gap-2 cursor-pointer shadow-md border mb-2',
+                  isTimerActive ? 'bg-red-600/20 hover:bg-red-600/30 text-red-400 border-red-500/40 animate-pulse' : 'bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border-emerald-500/40'
+                ]"
+              >
+                <component :is="isTimerActive ? 'Square' : 'Play'" class="h-3.5 w-3.5 fill-current" />
+                <span>{{ isTimerActive ? 'Vaqtni to\'xtatish' : 'Vaqtni boshlash' }}</span>
+              </button>
 
               <div class="grid grid-cols-2 gap-2">
                 <button 
@@ -908,20 +900,21 @@
               class="w-full bg-[#1e2230] border border-[#2a2e3d] rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-[#3b82f6]"
             >
               <option value="Asosiy zal">Asosiy zal</option>
-              <option value="VIP zal">VIP zal</option>
+              <option value="VIP zona">VIP zona</option>
               <option value="Kabina">Kabina</option>
               <option value="Terrasa">Terrasa</option>
             </select>
           </div>
-          <div v-if="roomName === 'VIP zal' || roomName === 'Kabina'">
-            <label class="block text-xs text-[#94a3b8] font-medium mb-1.5">Soatlik Xona / Kabina narxi (so'm)</label>
+          <div>
+            <label class="block text-xs text-[#94a3b8] font-medium mb-1.5">Stol / Xona soatlik narxi (so'm)</label>
             <input 
               type="number" 
               min="0"
               v-model="vipPricePerHour" 
-              placeholder="Masalan: 50000"
+              placeholder="0 (bepul) yoki masalan: 50000"
               class="w-full bg-[#1e2230] border border-[#2a2e3d] rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-[#3b82f6]"
             />
+            <p class="text-[10px] text-[#94a3b8] mt-1">Default: 0 so'm (bepul). Agar soatlik puli bo'lsa kiriting.</p>
           </div>
           <button type="submit" class="w-full py-2.5 bg-[#3b82f6] hover:bg-[#2563eb] text-white rounded-xl font-medium transition-colors cursor-pointer">
             Saqlash
@@ -1795,7 +1788,7 @@
 </template>
 
 <script>
-import { Bell, Grid, Menu, MoreHorizontal, Plus, Minus, Trash2, Users, AlertOctagon, Edit, X, ArrowLeft, Search, Utensils, Printer, Receipt, Calendar, ShieldAlert, ShoppingCart, Volume2, VolumeX, AlertTriangle, Folder, History, CheckCircle2, Tag, Percent, Link, Package, Play, Square, Minimize2, Maximize2 } from "lucide-vue-next";
+import { Bell, Grid, Menu, MoreHorizontal, Plus, Minus, Trash2, Users, AlertOctagon, Edit, X, ArrowLeft, Search, Utensils, Printer, Receipt, Calendar, ShieldAlert, ShoppingCart, Volume2, VolumeX, AlertTriangle, Folder, History, CheckCircle2, Tag, Percent, Link, Package, Play, Square, Pause, Minimize2, Maximize2 } from "lucide-vue-next";
 import TableIcon from "../components/TableIcon.vue";
 import { appContext } from "../store/appContext";
 import api from "../services/api";
@@ -1841,6 +1834,7 @@ export default {
     Package,
     Play,
     Square,
+    Pause,
     Minimize2,
     Maximize2
   },
@@ -1916,7 +1910,8 @@ export default {
       timeCounter: 0,
       timerInterval: null,
       timerStartMap: JSON.parse(localStorage.getItem("kitchen_vip_timer_map") || "{}"),
-      zallar: ["Asosiy zal", "VIP zal", "Kabina", "Terrasa"],
+      accumulatedVipFees: JSON.parse(localStorage.getItem("kitchen_vip_accumulated_map") || "{}"),
+      zallar: ["Asosiy zal", "VIP zona", "Kabina", "Terrasa"],
       cancellationReasons: [
         "Mijoz fikridan qaytdi (buyurtmani rad etdi)",
         "Taom tayyorlanishi juda uzoq cho'zildi",
@@ -1966,19 +1961,25 @@ export default {
     },
     currentTableSessions() {
       if (!this.selectedTable) return [];
-      const tId = String(this.selectedTable.id);
-      return this.activeOrders.filter(
-        o => (String(o.table_id || o.tableId) === tId) &&
-             o.status !== "COMPLETED" && o.status !== "CANCELLED"
-      );
+      const tId = String(this.selectedTable.id || this.selectedTable._id || "");
+      const tNum = String(this.selectedTable.table_number || this.selectedTable.tableNumber || "");
+      return (this.activeOrders || []).filter(o => {
+        if (o.status === "COMPLETED" || o.status === "CANCELLED") return false;
+        const oTableId = String(o.table_id || o.tableId || "");
+        const oTableNum = String(o.table_number || o.tableNumber || "");
+        const matchId = tId && (oTableId === tId || oTableNum === tId);
+        const matchNum = tNum && (oTableId === tNum || oTableNum === tNum);
+        return matchId || matchNum;
+      });
     },
     currentOccupiedOrder() {
       if (!this.selectedTable) return null;
-      const tId = String(this.selectedTable.id);
+      const tId = String(this.selectedTable.id || this.selectedTable._id || "");
+      const tNum = String(this.selectedTable.table_number || this.selectedTable.tableNumber || "");
       if (this.selectedSessionId) {
         const sId = String(this.selectedSessionId);
-        const found = this.activeOrders.find(o => String(o.id) === sId);
-        if (found && (String(found.table_id || found.tableId) === tId) && found.status !== "COMPLETED" && found.status !== "CANCELLED") return found;
+        const found = (this.activeOrders || []).find(o => String(o.id || o._id) === sId);
+        if (found && found.status !== "COMPLETED" && found.status !== "CANCELLED") return found;
       }
       const sessions = this.currentTableSessions;
       return sessions.length > 0 ? sessions[0] : null;
@@ -1990,9 +1991,73 @@ export default {
       if (!this.selectedTable) return false;
       return this.selectedTable.room_name === "VIP zal" || 
              this.selectedTable.roomName === "VIP zal" || 
+             this.selectedTable.room_name === "VIP zona" || 
+             this.selectedTable.roomName === "VIP zona" || 
              this.selectedTable.room_name === "Kabina" || 
              this.selectedTable.roomName === "Kabina" || 
              Number(this.selectedTable.vip_price_per_hour || this.selectedTable.vip_price) > 0;
+    },
+    displayCartItems() {
+      if (this.editModeCart && this.editModeCart.length > 0) {
+        return this.editModeCart;
+      }
+      if (this.currentOccupiedOrder) {
+        const rawItems = 
+          this.currentOccupiedOrder.order_items || 
+          this.currentOccupiedOrder.orderItems || 
+          this.currentOccupiedOrder.items || 
+          this.currentOccupiedOrder.order_details || 
+          this.currentOccupiedOrder.orderDetails || 
+          this.currentOccupiedOrder.details || 
+          this.currentOccupiedOrder.products || 
+          this.currentOccupiedOrder.cart_items || 
+          this.currentOccupiedOrder.cart || [];
+
+        if (rawItems && rawItems.length > 0) {
+          return rawItems.map((item, idx) => {
+            const pId = item.product_id !== undefined && item.product_id !== null 
+              ? item.product_id 
+              : (item.productId !== undefined && item.productId !== null ? item.productId : (item.id || item._id));
+            const prod = (this.products || []).find(p => String(p.id) === String(pId) || String(p._id) === String(pId));
+            const itemQty = Number(item.quantity !== undefined ? item.quantity : (item.qty !== undefined ? item.qty : 1));
+            const itemPrice = Number(item.price !== undefined ? item.price : (item.unit_price !== undefined ? item.unit_price : (prod ? prod.price : 0)));
+            const itemName = prod ? prod.name : (item.name || item.product_name || item.product?.name || "Taom");
+            return {
+              productId: pId || `item-${idx}`,
+              name: itemName,
+              price: itemPrice,
+              qty: itemQty,
+              originalQty: itemQty
+            };
+          });
+        }
+      }
+      if (this.selectedTable) {
+        const strId = String(this.selectedTable.id || this.selectedTable._id || "");
+        const numStr = String(this.selectedTable.table_number || "");
+        const tableCart = this.tableCarts[strId] || (numStr ? this.tableCarts[numStr] : null);
+        if (tableCart && tableCart.length > 0) {
+          return tableCart;
+        }
+      }
+      if (this.cart && this.cart.length > 0) {
+        return this.cart;
+      }
+      if (this.currentOccupiedOrder) {
+        const orderAmount = Number(this.currentOccupiedOrder.total_amount || this.currentOccupiedOrder.final_amount || this.currentOccupiedOrder.totalAmount || 0);
+        if (orderAmount > 0) {
+          return [
+            {
+              productId: `order-fallback-${this.currentOccupiedOrder.id}`,
+              name: `Faol Buyurtma Taomlari`,
+              price: orderAmount,
+              qty: 1,
+              originalQty: 1
+            }
+          ];
+        }
+      }
+      return [];
     },
     isTimerActive() {
       if (!this.currentOccupiedOrder) return false;
@@ -2004,11 +2069,24 @@ export default {
       // Reference timeCounter so VIP timer ticks live in real-time every second
       const _ticker = this.timeCounter;
       if (!this.currentOccupiedOrder || !this.selectedTable) return null;
-      if (!this.isVipOrKabinaTable) return null;
       
       const orderId = this.currentOccupiedOrder.id;
       const timerStart = this.currentOccupiedOrder.timer_started_at || this.timerStartMap[orderId];
-      if (!timerStart) return null;
+      const hourlyRate = Number(this.selectedTable?.vip_price_per_hour || this.selectedTable?.vip_price || 0);
+      const prevAccumulated = Number(this.accumulatedVipFees[orderId] || 0);
+
+      if (!timerStart) {
+        if (prevAccumulated > 0) {
+          return {
+            startTime: "To'xtatilgan",
+            duration: "To'xtatilgan (Hisoblangan)",
+            hourlyRate,
+            vipFee: prevAccumulated,
+            isStopped: true
+          };
+        }
+        return null;
+      }
 
       const startTime = new Date(timerStart);
       const now = new Date();
@@ -2019,17 +2097,15 @@ export default {
       const minutes = Math.floor((totalSeconds % 3600) / 60);
       const seconds = totalSeconds % 60;
       
-      const hourlyRate = this.selectedTable?.vip_price_per_hour || this.selectedTable?.vip_price || 0;
-      const elapsedSeconds = totalSeconds;
-      const vipFee = Math.ceil((elapsedSeconds / 3600) * hourlyRate);
+      const liveFee = Math.ceil((totalSeconds / 3600) * hourlyRate);
+      const vipFee = liveFee + prevAccumulated;
 
       return {
         startTime: startTime.toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
         duration: `${hours} soat ${minutes} daqiqa ${seconds} soniya`,
         hourlyRate,
         vipFee,
-        elapsedSeconds,
-        timerStartedAt: timerStart
+        isStopped: false
       };
     },
     otherOccupiedTables() {
@@ -2087,14 +2163,24 @@ export default {
     },
     allCombinedItems() {
       if (!this.currentOccupiedOrder) return [];
-      const primaryItems = this.currentOccupiedOrder.order_items || [];
+      const getItems = (o) => o.order_items || o.orderItems || o.items || o.order_details || [];
+      const primaryItems = getItems(this.currentOccupiedOrder);
       const secondaryItems = [];
       (this.mergedOrders || []).forEach(o => {
-        (o.order_items || []).forEach(item => {
+        getItems(o).forEach(item => {
           secondaryItems.push(item);
         });
       });
-      return [...primaryItems, ...secondaryItems];
+      const combined = [...primaryItems, ...secondaryItems];
+      if (combined.length === 0 && this.editModeCart && this.editModeCart.length > 0) {
+        return this.editModeCart.map(c => ({
+          product_id: c.productId,
+          quantity: c.qty,
+          price: c.price,
+          subtotal: c.price * c.qty
+        }));
+      }
+      return combined;
     },
     itemsSubtotal() {
       if (!this.currentOccupiedOrder) return 0;
@@ -2253,16 +2339,17 @@ export default {
         }
       }
     },
-    roomName(val) {
-      if (val !== "VIP zal" && val !== "Kabina") {
-        this.vipPricePerHour = 0;
-      }
-    },
     selectedTable(val) {
       if (!val) {
         this.isMobileCartOpen = false;
         this.editModeCart = [];
       } else {
+        if (this.currentTableSessions && this.currentTableSessions.length > 0) {
+          const hasSelected = this.currentTableSessions.some(s => s.id === this.selectedSessionId);
+          if (!hasSelected) {
+            this.selectedSessionId = this.currentTableSessions[0].id;
+          }
+        }
         this.initEditModeCart();
       }
     },
@@ -2467,9 +2554,24 @@ export default {
         this.editModeCart = [];
         return;
       }
-      const items = this.currentOccupiedOrder.order_items || 
-                    this.currentOccupiedOrder.orderItems || 
-                    this.currentOccupiedOrder.items || [];
+      let items = this.currentOccupiedOrder.order_items || 
+                  this.currentOccupiedOrder.orderItems || 
+                  this.currentOccupiedOrder.items || 
+                  this.currentOccupiedOrder.order_details || [];
+
+      if ((!items || items.length === 0) && this.selectedTable) {
+        const strId = String(this.selectedTable.id);
+        const numStr = String(this.selectedTable.table_number || "");
+        const draftCart = this.tableCarts[strId] || (numStr ? this.tableCarts[numStr] : null) || this.cart;
+        if (draftCart && draftCart.length > 0) {
+          items = draftCart.map(c => ({
+            product_id: c.productId,
+            name: c.name,
+            price: c.price,
+            quantity: c.qty
+          }));
+        }
+      }
 
       this.editModeCart = items.map((item, idx) => {
         const pId = item.product_id !== undefined && item.product_id !== null 
@@ -2515,6 +2617,27 @@ export default {
           user_role: this.state.role,
           user_name: this.state.currentUser?.first_name || 'Ofitsiant'
         });
+
+        this.editModeCart = this.editModeCart
+          .filter(item => item.qty > 0)
+          .map(item => ({ ...item, originalQty: item.qty }));
+
+        if (this.selectedTable) {
+          const strId = String(this.selectedTable.id || this.selectedTable._id || "");
+          const numStr = String(this.selectedTable.table_number || "");
+          const savedCart = this.editModeCart.map(i => ({
+            productId: i.productId,
+            name: i.name,
+            price: i.price,
+            qty: i.qty
+          }));
+          this.tableCarts = {
+            ...this.tableCarts,
+            [strId]: savedCart,
+            ...(numStr ? { [numStr]: savedCart } : {})
+          };
+        }
+
         appContext.showAlert("Muvaffaqiyatli", "Buyurtma saqlandi va yangilandi!");
         this.fetchData();
       } catch (err) {
@@ -2671,6 +2794,13 @@ export default {
       };
     },
     clearCurrentCart() {
+      if (this.currentOccupiedOrder && this.state.role === "WAITER") {
+        return appContext.showAlert(
+          "Ruxsat Etilmadi ⚠️",
+          "Saqlangan buyurtmalarni o'chirish yoki bekor qilish huquqi faqat Kassir va Adminga berilgan!",
+          "warning"
+        );
+      }
       this.updateCartForTable([]);
     },
     addToCart(product) {
@@ -3079,6 +3209,15 @@ export default {
       this.isCancelDropdownOpen = false;
     },
     async handleConfirmCancel() {
+      const role = this.state.role;
+      const isAllowed = role === "SUPERADMIN" || role === "ADMIN" || role === "CASHIER" || role === "MANAGER";
+      if (!isAllowed) {
+        return appContext.showAlert(
+          "Ruxsat Etilmadi ⚠️",
+          "Buyurtmani bekor qilish huquqi faqat Kassir va Adminga berilgan!",
+          "warning"
+        );
+      }
       if (!this.cancelReason) return appContext.showAlert("Xatolik", "Iltimos, bekor qilish sababini tanlang!", "error");
       try {
         const targetOrder = this.currentOccupiedOrder;
@@ -3298,20 +3437,26 @@ export default {
     },
     async stopVipTimer() {
       if (!this.currentOccupiedOrder) return;
-      appContext.showConfirm("Timerni To'xtatish", "Vaqt hisobini to'xtatmoqchimisiz?", async () => {
-        const orderId = this.currentOccupiedOrder.id;
-        const newMap = { ...this.timerStartMap };
-        delete newMap[orderId];
-        this.timerStartMap = newMap;
-        localStorage.setItem("kitchen_vip_timer_map", JSON.stringify(this.timerStartMap));
-        
-        try {
-          await api.put(`/orders/${orderId}`, { timer_started_at: null });
-          this.currentOccupiedOrder.timer_started_at = null;
-        } catch (e) {}
+      const orderId = this.currentOccupiedOrder.id;
+      if (this.vipCalc && this.vipCalc.vipFee) {
+        const finalFee = this.vipCalc.vipFee;
+        this.accumulatedVipFees = {
+          ...this.accumulatedVipFees,
+          [orderId]: finalFee
+        };
+        localStorage.setItem("kitchen_vip_accumulated_map", JSON.stringify(this.accumulatedVipFees));
+      }
+      const newMap = { ...this.timerStartMap };
+      delete newMap[orderId];
+      this.timerStartMap = newMap;
+      localStorage.setItem("kitchen_vip_timer_map", JSON.stringify(this.timerStartMap));
+      
+      try {
+        await api.put(`/orders/${orderId}`, { timer_started_at: null });
+        this.currentOccupiedOrder.timer_started_at = null;
+      } catch (e) {}
 
-        appContext.addNotification("Timer To'xtatildi", "Vaqt hisobi to'xtatildi", "WARNING");
-      });
+      appContext.addNotification("Timer To'xtatildi ⏹️", "Vaqt hisobi to'xtatildi va hisoblangan summa saqlandi!", "WARNING");
     },
   },
 };

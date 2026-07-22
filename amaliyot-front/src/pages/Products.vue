@@ -359,7 +359,7 @@
               <label class="block text-sm font-medium mb-1.5 text-muted-foreground">Zal (Joylashuv)</label>
               <select v-model="roomName" class="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-sm text-white">
                 <option value="Asosiy zal">Asosiy zal</option>
-                <option value="VIP zal">VIP zal</option>
+                <option value="VIP zona">VIP zona</option>
                 <option value="Kabina">Kabina</option>
                 <option value="Terrasa">Terrasa</option>
               </select>
