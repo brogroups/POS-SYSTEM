@@ -123,8 +123,8 @@
     </div>
 
     <!-- Chart and Popular Dishes -->
-    <div class="grid gap-6 lg:grid-cols-7">
-      <div class="lg:col-span-5 rounded-2xl border border-[#2a2e3d] bg-[#181b25] p-6 shadow-xl">
+    <div class="grid gap-6 md:grid-cols-7">
+      <div class="md:col-span-4 lg:col-span-5 rounded-2xl border border-[#2a2e3d] bg-[#181b25] p-6 shadow-xl">
         <div class="mb-6 flex justify-between items-center">
           <div>
             <h3 class="text-lg font-bold text-white flex items-center gap-2">
@@ -181,7 +181,7 @@
       </div>
 
       <!-- Popular Dishes -->
-      <div class="lg:col-span-2 rounded-2xl border border-[#2a2e3d] bg-[#181b25] p-6 shadow-xl flex flex-col justify-between">
+      <div class="md:col-span-3 lg:col-span-2 rounded-2xl border border-[#2a2e3d] bg-[#181b25] p-6 shadow-xl flex flex-col justify-between">
         <div>
           <h3 class="text-lg font-bold text-white mb-1">Top Sotilganlar</h3>
           <p class="text-xs text-[#94a3b8] mb-4">Eng ko'p buyurtma qilinganlar</p>

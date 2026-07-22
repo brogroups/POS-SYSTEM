@@ -1,5 +1,8 @@
 <template>
-  <div class="flex flex-col md:flex-row h-screen overflow-hidden bg-[#0f121b] text-white">
+  <div 
+    class="flex flex-col md:flex-row h-screen overflow-hidden bg-[#0f121b] text-white"
+    :style="state.uiScale && state.uiScale !== 1 ? { zoom: state.uiScale } : {}"
+  >
     <!-- Backdrop overlay for mobile drawer -->
     <transition
       enter-active-class="transition-opacity duration-200 ease-out"
@@ -17,7 +20,7 @@
     </transition>
 
     <!-- Mobile Top Header Bar -->
-    <header class="flex items-center justify-between px-6 py-4 bg-[#181b25] border-b border-[#2a2e3d] md:hidden shrink-0 z-30">
+    <header class="flex items-center justify-between px-4 py-3 bg-[#181b25] border-b border-[#2a2e3d] md:hidden shrink-0 z-30">
       <div class="flex items-center gap-3">
         <button 
           @click="toggleSidebar" 
@@ -43,7 +46,7 @@
 
     <!-- Main Content Panel -->
     <div class="flex flex-col flex-1 overflow-hidden relative">
-      <main class="flex-1 overflow-y-auto p-4 md:p-6 relative z-10">
+      <main class="flex-1 overflow-y-auto p-3 md:p-4 relative z-10">
         <router-view />
       </main>
     </div>

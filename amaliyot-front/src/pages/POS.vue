@@ -1,45 +1,77 @@
 <template>
-  <div class="flex flex-col lg:flex-row h-full gap-6 relative">
+  <div class="flex flex-col md:flex-row h-full gap-4 md:gap-5 relative">
     <!-- Left panel (Menu Grid OR Table Layout) -->
     <template v-if="selectedTable">
       <!-- --- MENU GRID VIEW --- -->
-      <div class="flex-1 bg-[#181b25] border border-[#2a2e3d] rounded-2xl p-6 overflow-hidden flex flex-col gap-6">
-        <div class="flex items-center justify-between border-b border-[#2a2e3d] pb-4 shrink-0">
-          <div class="flex items-center gap-4">
+      <div class="flex-1 bg-[#181b25] border border-[#2a2e3d] rounded-2xl p-4 md:p-5 overflow-hidden flex flex-col gap-4">
+        <div class="flex flex-wrap items-center justify-between border-b border-[#2a2e3d] pb-3 shrink-0 gap-3">
+          <div class="flex items-center gap-3">
             <button 
               @click="goBackToTables"
-              class="flex items-center gap-2 text-sm text-[#94a3b8] hover:text-white bg-[#1e2230] border border-[#2a2e3d] px-3.5 py-2 rounded-lg transition-colors font-medium cursor-pointer"
+              class="flex items-center gap-1.5 text-xs text-[#94a3b8] hover:text-white bg-[#1e2230] border border-[#2a2e3d] px-3 py-2 rounded-lg transition-colors font-medium cursor-pointer"
             >
-              <ArrowLeft class="h-4 w-4" /> Orqaga (Stollar)
+              <ArrowLeft class="h-3.5 w-3.5" /> Orqaga (Stollar)
             </button>
             <div>
-              <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <h2 class="text-base font-bold text-white flex items-center gap-2">
                 {{ selectedTable.room_name || "Asosiy zal" }} <span class="text-[#3b82f6]">/</span> {{ selectedTable.table_number ? `${selectedTable.table_number}-stol` : selectedTable.id }}
               </h2>
-              <p class="text-xs text-[#94a3b8] mt-0.5">
+              <p class="text-[11px] text-[#94a3b8]">
                 Sig'imi: {{ selectedTable.seats || 4 }} kishilik | Holati: {{ selectedTable.status === "OCCUPIED" ? "Band" : "Bo'sh" }}
               </p>
             </div>
           </div>
-          <!-- Search food input -->
-          <div class="relative w-64">
-            <Search class="absolute left-3 top-2.5 h-4 w-4 text-[#94a3b8]" />
-            <input 
-              type="text" 
-              placeholder="Taom qidirish..." 
-              v-model="searchQuery"
-              class="w-full bg-[#1e2230] border border-[#2a2e3d] rounded-xl pl-9 pr-4 py-2.5 text-xs text-white outline-none focus:border-[#3b82f6]"
-            />
+          
+          <div class="flex items-center gap-2">
+            <!-- Compact View Toggle -->
+            <button 
+              @click="toggleCompactMode" 
+              :class="[
+                'px-2.5 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer flex items-center gap-1',
+                compactCardsMode ? 'bg-blue-600/30 text-blue-300 border-blue-500/50' : 'bg-[#1e2230] text-[#94a3b8] border-[#2a2e3d] hover:text-white'
+              ]"
+              :title="compactCardsMode ? 'Katta kartalarga o\'tish' : 'Ixcham kartalarga o\'tish'"
+            >
+              <Maximize2 v-if="compactCardsMode" class="h-3.5 w-3.5" />
+              <Minimize2 v-else class="h-3.5 w-3.5" />
+              <span>{{ compactCardsMode ? 'Katta' : 'Ixcham' }}</span>
+            </button>
+
+            <!-- UI Scale Selector -->
+            <div class="flex bg-[#1e2230] border border-[#2a2e3d] rounded-lg p-0.5 text-xs">
+              <button 
+                v-for="scaleVal in [0.85, 0.95, 1.0]"
+                :key="scaleVal"
+                @click="changeScale(scaleVal)"
+                :class="[
+                  'px-2 py-1 rounded text-[11px] font-bold cursor-pointer transition-colors',
+                  (state.uiScale || 1.0) === scaleVal ? 'bg-blue-600 text-white' : 'text-[#94a3b8] hover:text-white'
+                ]"
+              >
+                {{ Math.round(scaleVal * 100) }}%
+              </button>
+            </div>
+
+            <!-- Search food input -->
+            <div class="relative w-48 sm:w-56">
+              <Search class="absolute left-3 top-2.5 h-3.5 w-3.5 text-[#94a3b8]" />
+              <input 
+                type="text" 
+                placeholder="Taom qidirish..." 
+                v-model="searchQuery"
+                class="w-full bg-[#1e2230] border border-[#2a2e3d] rounded-xl pl-8 pr-3 py-2 text-xs text-white outline-none focus:border-[#3b82f6]"
+              />
+            </div>
           </div>
         </div>
 
         <!-- Menu categories tabs — premium pill buttons -->
-        <div class="flex items-center justify-between gap-2 overflow-x-auto pb-2 scrollbar-none shrink-0">
+        <div class="flex items-center justify-between gap-2 overflow-x-auto pb-1 scrollbar-none shrink-0">
           <div class="flex gap-2 overflow-x-auto scrollbar-none">
             <button 
               @click="selectedCategory = 'ALL'"
               :class="[
-                'px-5 py-2 text-xs font-bold rounded-full border transition-all duration-200 whitespace-nowrap cursor-pointer',
+                'px-4 py-1.5 text-xs font-bold rounded-full border transition-all duration-200 whitespace-nowrap cursor-pointer',
                 selectedCategory === 'ALL' 
                   ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-transparent shadow-lg shadow-blue-500/30' 
                   : 'bg-[#1e2230] text-[#94a3b8] border-[#2a2e3d] hover:text-white hover:border-[#3b4054]'
@@ -52,7 +84,7 @@
               :key="cat.id"
               @click="selectedCategory = cat.id"
               :class="[
-                'px-5 py-2 text-xs font-bold rounded-full border transition-all duration-200 whitespace-nowrap cursor-pointer',
+                'px-4 py-1.5 text-xs font-bold rounded-full border transition-all duration-200 whitespace-nowrap cursor-pointer',
                 selectedCategory === cat.id 
                   ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-transparent shadow-lg shadow-blue-500/30' 
                   : 'bg-[#1e2230] text-[#94a3b8] border-[#2a2e3d] hover:text-white hover:border-[#3b4054]'
@@ -63,14 +95,14 @@
           </div>
           <button 
             @click="isCustomItemModalOpen = true"
-            class="flex items-center gap-1.5 px-4 py-2 rounded-full bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 text-xs font-bold transition-all cursor-pointer shadow-md shrink-0 active:scale-95 whitespace-nowrap"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 text-xs font-bold transition-all cursor-pointer shadow-md shrink-0 active:scale-95 whitespace-nowrap"
           >
-            <Plus class="h-4 w-4 text-purple-400" /> ⚡ Tashqi / Erkin Mahsulot (+ so'm)
+            <Plus class="h-3.5 w-3.5 text-purple-400" /> ⚡ Erkin Mahsulot
           </button>
         </div>
 
-        <!-- Products grid — Ultra Premium Cards -->
-        <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 overflow-y-auto content-start pb-4 pr-1">
+        <!-- Products grid — Responsive POS Cards -->
+        <div class="flex-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 overflow-y-auto content-start pb-4 pr-1">
           <div 
             v-for="(p, idx) in filteredProducts"
             :key="p.id"
@@ -83,7 +115,7 @@
             @click="addToCart(p)"
           >
             <!-- IMAGE AREA -->
-            <div :class="['relative h-40 w-full shrink-0 overflow-hidden bg-gradient-to-br', getCategoryGradient(idx)]">
+            <div :class="['relative w-full shrink-0 overflow-hidden bg-gradient-to-br transition-all', compactCardsMode ? 'h-16 md:h-20' : 'h-24 sm:h-28 md:h-32', getCategoryGradient(idx)]">
               <!-- Real image -->
               <img
                 v-if="p.image"
@@ -94,7 +126,7 @@
               />
               <!-- Emoji fallback -->
               <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <span class="text-5xl opacity-20 select-none">{{ getCategoryEmoji(idx) }}</span>
+                <span :class="compactCardsMode ? 'text-3xl opacity-20 select-none' : 'text-4xl opacity-20 select-none'">{{ getCategoryEmoji(idx) }}</span>
               </div>
               <!-- Dark overlay -->
               <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/10" />
@@ -414,7 +446,7 @@
       <div 
         v-if="isMobileCartOpen" 
         @click="isMobileCartOpen = false"
-        class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+        class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
       ></div>
     </transition>
 
@@ -422,7 +454,7 @@
     <div 
       v-if="selectedTable"
       @click="isMobileCartOpen = true"
-      class="fixed bottom-6 right-6 z-30 lg:hidden flex items-center justify-center h-14 w-14 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 shadow-xl shadow-blue-500/30 border border-white/20 cursor-pointer active:scale-95 transition-transform animate-bounce"
+      class="fixed bottom-6 right-6 z-30 md:hidden flex items-center justify-center h-14 w-14 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 shadow-xl shadow-blue-500/30 border border-white/20 cursor-pointer active:scale-95 transition-transform animate-bounce"
     >
       <span class="relative">
         <ShoppingCart class="h-6 w-6 text-white" />
@@ -439,12 +471,12 @@
     <!-- Right Sidebar (Order Compilation & Operations) -->
     <div 
       :class="[
-        'fixed lg:static inset-y-0 right-0 z-50 w-full lg:w-72 xl:w-[340px] bg-[#181b25] border-l border-[#2a2e3d] lg:border lg:rounded-2xl flex flex-col shadow-2xl lg:shadow-lg overflow-hidden shrink-0 text-white transition-all duration-300 transform',
-        isMobileCartOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
+        'fixed md:static inset-y-0 right-0 z-50 w-full md:w-72 xl:w-[320px] bg-[#181b25] border-l border-[#2a2e3d] md:border md:rounded-2xl flex flex-col shadow-2xl md:shadow-lg overflow-hidden shrink-0 text-white transition-all duration-300 transform',
+        isMobileCartOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'
       ]"
     >
       <!-- Mobile Close Cart Header -->
-      <div class="flex justify-between items-center p-4 bg-[#14161e] border-b border-[#2a2e3d] lg:hidden">
+      <div class="flex justify-between items-center p-4 bg-[#14161e] border-b border-[#2a2e3d] md:hidden">
         <span class="text-sm font-bold text-white uppercase tracking-wider">Stol Buyurtmasi</span>
         <button @click="isMobileCartOpen = false" class="p-1.5 bg-[#2a2e3d] text-[#94a3b8] hover:text-white rounded-lg cursor-pointer">
           <X class="h-4 w-4" />
@@ -520,7 +552,6 @@
         <p class="text-sm font-bold text-red-400">Ruxsat etilmagan stol</p>
         <p class="text-xs text-[#94a3b8] mt-2">Ushbu stolda hozircha faol sessiya yo'q yoki sizga ruxsat etilmagan.</p>
       </div>
-      
       <div v-else-if="currentOccupiedOrder" class="flex-1 overflow-y-auto p-5 space-y-4 bg-red-500/5">
         <div class="flex items-center justify-between mb-2 pb-2 border-b border-red-500/20">
           <div class="flex items-center gap-2">
@@ -528,7 +559,10 @@
           </div>
           <span class="text-xs font-bold bg-red-500/20 text-red-400 px-2 py-1 rounded">{{ getOrderDisplayId(currentOccupiedOrder) }}</span>
         </div>
-        <div v-for="item in editModeCart" :key="item.productId" class="flex gap-3 items-center">
+        <div v-if="editModeCart.length === 0" class="py-8 text-center text-xs text-[#94a3b8] italic">
+          Ushbu buyurtmada hali taomlar ro'yxati mavjud emas
+        </div>
+        <div v-for="(item, idx) in editModeCart" :key="item.productId || idx" class="flex gap-3 items-center">
           <div class="w-10 h-10 rounded-lg bg-[#1e2230] flex items-center justify-center border border-[#2a2e3d] overflow-hidden shrink-0">
             <img v-if="getProductImage(item.productId)" :src="getProductImage(item.productId)" class="w-full h-full object-cover" />
             <Utensils v-else class="h-4 w-4 text-muted-foreground" />
@@ -1761,7 +1795,7 @@
 </template>
 
 <script>
-import { Bell, Grid, Menu, MoreHorizontal, Plus, Minus, Trash2, Users, AlertOctagon, Edit, X, ArrowLeft, Search, Utensils, Printer, Receipt, Calendar, ShieldAlert, ShoppingCart, Volume2, VolumeX, AlertTriangle, Folder, History, CheckCircle2, Tag, Percent, Link, Package, Play, Square } from "lucide-vue-next";
+import { Bell, Grid, Menu, MoreHorizontal, Plus, Minus, Trash2, Users, AlertOctagon, Edit, X, ArrowLeft, Search, Utensils, Printer, Receipt, Calendar, ShieldAlert, ShoppingCart, Volume2, VolumeX, AlertTriangle, Folder, History, CheckCircle2, Tag, Percent, Link, Package, Play, Square, Minimize2, Maximize2 } from "lucide-vue-next";
 import TableIcon from "../components/TableIcon.vue";
 import { appContext } from "../store/appContext";
 import api from "../services/api";
@@ -1807,11 +1841,14 @@ export default {
     Package,
     Play,
     Square,
+    Minimize2,
+    Maximize2
   },
   data() {
     return {
       state: appContext.state,
       isMobileCartOpen: false,
+      compactCardsMode: localStorage.getItem("pos_compact_mode") === "true",
       activeTab: "Asosiy zal",
       tables: [],
       products: [],
@@ -2207,6 +2244,7 @@ export default {
     },
     currentOccupiedOrder: {
       immediate: true,
+      deep: true,
       handler(newVal) {
         if (newVal) {
           this.initEditModeCart();
@@ -2223,7 +2261,13 @@ export default {
     selectedTable(val) {
       if (!val) {
         this.isMobileCartOpen = false;
+        this.editModeCart = [];
+      } else {
+        this.initEditModeCart();
       }
+    },
+    selectedSessionId() {
+      this.initEditModeCart();
     },
   },
   mounted() {
@@ -2240,6 +2284,13 @@ export default {
     window.removeEventListener("sync-complete", this.fetchData);
   },
   methods: {
+    toggleCompactMode() {
+      this.compactCardsMode = !this.compactCardsMode;
+      localStorage.setItem("pos_compact_mode", this.compactCardsMode ? "true" : "false");
+    },
+    changeScale(s) {
+      appContext.setUiScale(s);
+    },
     formatTableTitle(table) {
       if (!table) return "";
       return table.table_number ? `${table.table_number}-stol (${table.room_name || 'Asosiy zal'})` : `Stol #${table.id}`;
@@ -2416,15 +2467,26 @@ export default {
         this.editModeCart = [];
         return;
       }
-      const items = this.currentOccupiedOrder.order_items || this.currentOccupiedOrder.orderItems || [];
-      this.editModeCart = items.map(item => {
-        const prod = this.products.find(p => p.id === item.product_id || p.id === item.productId);
+      const items = this.currentOccupiedOrder.order_items || 
+                    this.currentOccupiedOrder.orderItems || 
+                    this.currentOccupiedOrder.items || [];
+
+      this.editModeCart = items.map((item, idx) => {
+        const pId = item.product_id !== undefined && item.product_id !== null 
+          ? item.product_id 
+          : (item.productId !== undefined && item.productId !== null ? item.productId : item.id);
+
+        const prod = (this.products || []).find(p => String(p.id) === String(pId));
+        const itemQty = Number(item.quantity !== undefined ? item.quantity : (item.qty !== undefined ? item.qty : 1));
+        const itemPrice = Number(item.price !== undefined ? item.price : (prod ? prod.price : 0));
+        const itemName = prod ? prod.name : (item.name || item.product_name || item.product?.name || "Taom");
+
         return {
-          productId: item.product_id || item.productId,
-          name: prod ? prod.name : "Taom",
-          price: item.price,
-          qty: item.quantity || item.qty,
-          originalQty: item.quantity || item.qty
+          productId: pId || `item-${idx}`,
+          name: itemName,
+          price: itemPrice,
+          qty: itemQty,
+          originalQty: itemQty
         };
       });
       this.editReason = "";
@@ -2768,6 +2830,7 @@ export default {
           }
         }
         this.activeOrders = newActiveOrders;
+        this.initEditModeCart();
       } catch (err) {
         console.error(err);
       } finally {

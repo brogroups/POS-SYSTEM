@@ -36,6 +36,8 @@ export const state = reactive({
   isOnline: true,
   syncing: false,
   isSidebarOpen: false,
+  isSidebarCollapsed: localStorage.getItem("isSidebarCollapsed") === "true",
+  uiScale: parseFloat(localStorage.getItem("uiScale") || "1"),
   notifications: [],
   offlineQueue: (() => {
     try {
@@ -247,6 +249,17 @@ export const appContext = {
 
   closeSidebar() {
     state.isSidebarOpen = false;
+  },
+
+  toggleSidebarCollapsed() {
+    state.isSidebarCollapsed = !state.isSidebarCollapsed;
+    localStorage.setItem("isSidebarCollapsed", state.isSidebarCollapsed ? "true" : "false");
+  },
+
+  setUiScale(scale) {
+    const numScale = parseFloat(scale) || 1.0;
+    state.uiScale = numScale;
+    localStorage.setItem("uiScale", numScale.toString());
   },
 
   hasPermission(permission) {

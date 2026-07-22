@@ -1,54 +1,99 @@
-const { app, BrowserWindow, globalShortcut, Menu } = require('electron');
+const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
 
 let mainWindow;
 
 function createMenu() {
+  const isMac = process.platform === 'darwin';
+  
   const template = [
+    ...(isMac ? [{
+      label: app.name,
+      submenu: [
+        { role: 'about' },
+        { type: 'separator' },
+        { role: 'services' },
+        { type: 'separator' },
+        { role: 'hide' },
+        { role: 'hideOthers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { role: 'quit', label: 'Chiqish (Quit)' }
+      ]
+    }] : []),
     {
-      label: 'Application',
+      label: 'Fayl',
       submenu: [
         {
-          label: 'Quit',
-          accelerator: 'CommandOrControl+Q',
-          click: () => {
-            app.quit();
+          label: 'Qayta yuklash (Reload)',
+          accelerator: 'CmdOrCtrl+R',
+          click: (item, focusedWindow) => {
+            if (focusedWindow) focusedWindow.reload();
           }
-        }
+        },
+        {
+          label: 'Qattiq Qayta yuklash (Force Reload)',
+          accelerator: 'CmdOrCtrl+Shift+R',
+          click: (item, focusedWindow) => {
+            if (focusedWindow) focusedWindow.webContents.reloadIgnoringCache();
+          }
+        },
+        {
+          label: 'Ilovani Qayta Ishga Tushirish (Restart App)',
+          accelerator: 'CmdOrCtrl+Shift+K',
+          click: () => {
+            app.relaunch();
+            app.exit(0);
+          }
+        },
+        { type: 'separator' },
+        isMac ? { role: 'close' } : { role: 'quit', label: 'Chiqish (Quit)' }
+      ]
+    },
+    {
+      label: 'Tahrirlash (Edit)',
+      submenu: [
+        { role: 'undo', label: 'Bekor qilish (Undo)' },
+        { role: 'redo', label: 'Qaytarish (Redo)' },
+        { type: 'separator' },
+        { role: 'cut', label: 'Kesib olish (Cut)' },
+        { role: 'copy', label: 'Nusxalash (Copy)' },
+        { role: 'paste', label: 'Joylashtirish (Paste)' },
+        { role: 'selectAll', label: 'Barchasini tanlash (Select All)' }
+      ]
+    },
+    {
+      label: 'Ko\'rinish (View)',
+      submenu: [
+        { role: 'reload', label: 'Qayta yuklash' },
+        { role: 'forceReload', label: 'Qattiq qayta yuklash' },
+        { role: 'toggleDevTools', label: 'Dasturchi Asboblari (DevTools)', accelerator: 'F12' },
+        { type: 'separator' },
+        { role: 'resetZoom', label: 'Masshtabni tiklash' },
+        { role: 'zoomIn', label: 'Kattalashtirish' },
+        { role: 'zoomOut', label: 'Kichiklashtirish' },
+        { type: 'separator' },
+        { role: 'togglefullscreen', label: 'To\'liq ekran (Fullscreen)', accelerator: 'F11' }
       ]
     }
   ];
+
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
-}
-
-function registerShortcuts() {
-  const shortcuts = ['CommandOrControl+Q', 'Control+Q', 'Command+Q', 'Control+Shift+Q'];
-  
-  shortcuts.forEach(shortcut => {
-    try {
-      globalShortcut.register(shortcut, () => {
-        if (mainWindow && !mainWindow.isDestroyed()) {
-          mainWindow.close();
-        }
-        app.quit();
-      });
-    } catch (err) {
-      console.warn(`Failed to register shortcut: ${shortcut}`, err);
-    }
-  });
 }
 
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
+    minWidth: 1024,
+    minHeight: 600,
     show: false,
     fullscreen: false,
     kiosk: false,
     minimizable: true,
     resizable: true,
-    autoHideMenuBar: true, // Clean look for kitchen screens
+    autoHideMenuBar: false, // Standard menu bar enabled for keyboard shortcuts
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -63,7 +108,49 @@ function createWindow() {
   mainWindow.webContents.on('before-input-event', (event, input) => {
     if (input.type === 'keyDown') {
       const isControlOrCmd = input.control || input.meta;
-      if (isControlOrCmd && input.key.toLowerCase() === 'q') {
+      const key = input.key.toLowerCase();
+
+      // Ctrl+R, Cmd+R, or F5 -> Reload page
+      if ((isControlOrCmd && key === 'r') || input.key === 'F5') {
+        event.preventDefault();
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          if (input.shift) {
+            mainWindow.webContents.reloadIgnoringCache();
+          } else {
+            mainWindow.webContents.reload();
+          }
+        }
+        return;
+      }
+
+      // F12 or Ctrl+Shift+I / Cmd+Option+I -> Toggle DevTools
+      if (input.key === 'F12' || (isControlOrCmd && input.shift && key === 'i')) {
+        event.preventDefault();
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.toggleDevTools();
+        }
+        return;
+      }
+
+      // Ctrl+Shift+R or Ctrl+F5 -> Force reload
+      if ((isControlOrCmd && input.shift && key === 'r') || (input.control && input.key === 'F5')) {
+        event.preventDefault();
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.reloadIgnoringCache();
+        }
+        return;
+      }
+
+      // Ctrl+Shift+K -> Restart whole app
+      if (isControlOrCmd && input.shift && key === 'k') {
+        event.preventDefault();
+        app.relaunch();
+        app.exit(0);
+        return;
+      }
+
+      // Ctrl+Q or Cmd+Q -> Quit app
+      if (isControlOrCmd && key === 'q') {
         event.preventDefault();
         if (mainWindow && !mainWindow.isDestroyed()) {
           mainWindow.close();
@@ -114,13 +201,8 @@ if (!gotTheLock) {
   app.on('ready', () => {
     createMenu();
     createWindow();
-    registerShortcuts();
   });
 }
-
-app.on('will-quit', () => {
-  globalShortcut.unregisterAll();
-});
 
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
@@ -133,4 +215,3 @@ app.on('activate', function () {
     createWindow();
   }
 });
-

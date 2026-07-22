@@ -1,26 +1,49 @@
 <template>
-  <div class="w-52 md:w-56 lg:w-60 xl:w-64 bg-[#181b25] flex flex-col h-full border-r border-[#2a2e3d] shrink-0 transition-all">
-    <div class="h-20 flex items-center justify-between px-6 shrink-0 border-b border-[#2a2e3d]/50">
-      <div class="flex items-center gap-3">
-        <div class="h-10 w-10 bg-primary/20 text-primary rounded-xl flex items-center justify-center">
-          <Utensils class="h-6 w-6" />
+  <div 
+    :class="[
+      'bg-[#181b25] flex flex-col h-full border-r border-[#2a2e3d] shrink-0 transition-all duration-300 relative',
+      state.isSidebarCollapsed ? 'w-16' : 'w-52 md:w-56 lg:w-60 xl:w-64'
+    ]"
+  >
+    <!-- Header bar -->
+    <div 
+      :class="[
+        'h-16 flex items-center justify-between shrink-0 border-b border-[#2a2e3d]/50 transition-all',
+        state.isSidebarCollapsed ? 'px-3 justify-center' : 'px-4 md:px-6'
+      ]"
+    >
+      <div class="flex items-center gap-3 overflow-hidden">
+        <div class="h-9 w-9 bg-primary/20 text-primary rounded-xl flex items-center justify-center shrink-0">
+          <Utensils class="h-5 w-5" />
         </div>
-        <div>
-          <h1 class="text-lg font-bold text-white leading-tight">Restoran</h1>
-          <p class="text-xs text-muted-foreground">Restoran Tizimi</p>
+        <div v-if="!state.isSidebarCollapsed" class="overflow-hidden">
+          <h1 class="text-base font-bold text-white leading-tight truncate">Restoran</h1>
+          <p class="text-[10px] text-muted-foreground truncate">POS Tizimi</p>
         </div>
       </div>
-      <!-- Close button on mobile -->
-      <button 
-        @click="closeSidebar" 
-        class="p-1.5 bg-[#212638] text-[#94a3b8] hover:text-white rounded-lg border border-[#2a2e3d] md:hidden cursor-pointer"
-      >
-        <X class="h-4 w-4" />
-      </button>
+      
+      <!-- Right actions: Collapse button on desktop, close button on mobile -->
+      <div class="flex items-center gap-1">
+        <button 
+          @click="toggleCollapse"
+          class="hidden md:flex p-1.5 bg-[#212638] text-[#94a3b8] hover:text-white rounded-lg border border-[#2a2e3d] cursor-pointer transition-colors"
+          :title="state.isSidebarCollapsed ? 'Menyuni kengaytirish' : 'Menyuni ixchamlash'"
+        >
+          <PanelLeftOpen v-if="state.isSidebarCollapsed" class="h-4 w-4" />
+          <PanelLeftClose v-else class="h-4 w-4" />
+        </button>
+        <button 
+          @click="closeSidebar" 
+          class="p-1.5 bg-[#212638] text-[#94a3b8] hover:text-white rounded-lg border border-[#2a2e3d] md:hidden cursor-pointer"
+        >
+          <X class="h-4 w-4" />
+        </button>
+      </div>
     </div>
     
-    <div class="flex-1 overflow-y-auto py-4">
-      <nav class="space-y-1 px-4">
+    <!-- Nav Links -->
+    <div class="flex-1 overflow-y-auto py-3">
+      <nav :class="['space-y-1', state.isSidebarCollapsed ? 'px-2' : 'px-3']">
         <router-link
           v-for="item in navItems"
           :key="item.name"
@@ -31,36 +54,39 @@
           <a
             :href="href"
             @click="navigate"
+            :title="state.isSidebarCollapsed ? item.name : ''"
             :class="[
-              'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200',
+              'flex items-center rounded-xl py-2.5 transition-all duration-200 cursor-pointer',
+              state.isSidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3 text-sm font-medium',
               isActive
-                ? 'bg-[#212638] text-primary'
+                ? 'bg-[#212638] text-primary shadow-sm border border-primary/30'
                 : 'text-muted-foreground hover:bg-[#212638] hover:text-white'
             ]"
           >
             <component :is="item.icon" class="h-5 w-5 shrink-0" />
-            {{ item.name }}
+            <span v-if="!state.isSidebarCollapsed" class="truncate">{{ item.name }}</span>
           </a>
         </router-link>
       </nav>
     </div>
 
-    <div class="p-4 shrink-0 border-t border-[#2a2e3d]">
-      <div class="relative">
+    <!-- Bottom User Section -->
+    <div :class="['shrink-0 border-t border-[#2a2e3d] transition-all', state.isSidebarCollapsed ? 'p-2' : 'p-3']">
+      <div v-if="!state.isSidebarCollapsed" class="relative">
         <button 
           @click="toggleShowRoles"
-          class="w-full flex items-center justify-between p-3 rounded-xl bg-[#212638] hover:bg-[#2a2e3d] transition-colors text-left cursor-pointer"
+          class="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#212638] hover:bg-[#2a2e3d] transition-colors text-left cursor-pointer border border-[#2a2e3d]"
         >
-          <div class="flex items-center gap-3">
-            <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center text-[#181b25] shrink-0">
-              <span class="font-bold text-sm">{{ role ? role.charAt(0) : 'U' }}</span>
+          <div class="flex items-center gap-2.5 overflow-hidden">
+            <div class="h-7 w-7 rounded-full bg-white flex items-center justify-center text-[#181b25] font-bold text-xs shrink-0">
+              {{ role ? role.charAt(0) : 'U' }}
             </div>
             <div class="overflow-hidden">
-              <p class="text-sm font-bold text-white truncate">Foydalanuvchi</p>
-              <p class="text-xs text-muted-foreground">{{ getRoleLabel() }}</p>
+              <p class="text-xs font-bold text-white truncate">Foydalanuvchi</p>
+              <p class="text-[10px] text-muted-foreground truncate">{{ getRoleLabel() }}</p>
             </div>
           </div>
-          <ChevronDown class="h-4 w-4 text-muted-foreground shrink-0" />
+          <ChevronDown class="h-3.5 w-3.5 text-muted-foreground shrink-0" />
         </button>
 
         <transition
@@ -76,14 +102,14 @@
             class="absolute bottom-full left-0 w-full mb-2 bg-[#212638] border border-[#2a2e3d] rounded-xl shadow-xl overflow-hidden z-40"
           >
             <div class="p-2 space-y-1">
-              <p class="text-xs text-muted-foreground px-2 py-1 uppercase font-bold tracking-wider">Rolni o'zgartirish</p>
+              <p class="text-[10px] text-muted-foreground px-2 py-1 uppercase font-bold tracking-wider">Rolni o'zgartirish</p>
               <button 
                 v-for="r in rolesList"
                 :key="r"
                 @click="handleRoleSelect(r)"
                 :class="[
-                  'w-full text-left px-3 py-2 text-sm rounded-lg transition-colors cursor-pointer',
-                  role === r ? 'bg-primary/20 text-primary' : 'hover:bg-[#2a2e3d] text-white'
+                  'w-full text-left px-3 py-1.5 text-xs rounded-lg transition-colors cursor-pointer',
+                  role === r ? 'bg-primary/20 text-primary font-bold' : 'hover:bg-[#2a2e3d] text-white'
                 ]"
               >
                 {{ formatRoleName(r) }}
@@ -92,13 +118,28 @@
           </div>
         </transition>
       </div>
+
+      <!-- Collapsed user button -->
+      <div v-else class="flex flex-col items-center gap-2">
+        <button 
+          @click="toggleShowRoles"
+          class="h-9 w-9 rounded-xl bg-[#212638] border border-[#2a2e3d] flex items-center justify-center text-white font-bold text-xs hover:bg-[#2a2e3d] transition-colors cursor-pointer"
+          :title="getRoleLabel() + ' (Rolni o\'zgartirish)'"
+        >
+          {{ role ? role.charAt(0) : 'U' }}
+        </button>
+      </div>
       
       <button 
         @click="handleLogout"
-        class="w-full mt-2 flex items-center justify-center gap-2 p-3 text-sm text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors border border-transparent rounded-xl cursor-pointer"
+        :class="[
+          'w-full mt-2 flex items-center justify-center gap-2 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors border border-transparent rounded-xl cursor-pointer',
+          state.isSidebarCollapsed ? 'p-2' : 'p-2.5'
+        ]"
+        :title="state.isSidebarCollapsed ? 'Chiqish' : ''"
       >
-        <LogOut class="h-4 w-4" />
-        Chiqish
+        <LogOut class="h-4 w-4 shrink-0" />
+        <span v-if="!state.isSidebarCollapsed">Chiqish</span>
       </button>
     </div>
   </div>
@@ -172,7 +213,9 @@ import {
   ChefHat,
   Flame,
   ShoppingBag,
-  FileText
+  FileText,
+  PanelLeftClose,
+  PanelLeftOpen
 } from "lucide-vue-next";
 import { appContext, ROLE_PASSWORDS } from "../store/appContext";
 
@@ -194,7 +237,9 @@ export default {
     ChefHat,
     Flame,
     ShoppingBag,
-    FileText
+    FileText,
+    PanelLeftClose,
+    PanelLeftOpen
   },
   data() {
     return {
@@ -309,6 +354,9 @@ export default {
     },
     closeSidebar() {
       appContext.closeSidebar();
+    },
+    toggleCollapse() {
+      appContext.toggleSidebarCollapsed();
     },
   },
 };
