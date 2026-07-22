@@ -89,7 +89,8 @@ function createWindow() {
     minWidth: 1024,
     minHeight: 600,
     show: false,
-    fullscreen: false,
+    fullscreen: true,
+    fullscreenable: true,
     kiosk: false,
     minimizable: true,
     resizable: true,
@@ -103,6 +104,7 @@ function createWindow() {
   });
 
   mainWindow.maximize();
+  mainWindow.setFullScreen(true);
 
   // Listen for keydown events inside the renderer process window
   mainWindow.webContents.on('before-input-event', (event, input) => {
@@ -161,6 +163,7 @@ function createWindow() {
   });
 
   mainWindow.once('ready-to-show', () => {
+    mainWindow.setFullScreen(true);
     mainWindow.show();
   });
 
