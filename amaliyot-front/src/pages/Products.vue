@@ -364,7 +364,7 @@
                 <option value="Terrasa">Terrasa</option>
               </select>
             </div>
-            <div v-if="roomName === 'VIP zal' || roomName === 'Kabina'">
+            <div v-if="roomName === 'VIP zona' || roomName === 'Kabina'">
               <label class="block text-sm font-medium mb-1.5 text-muted-foreground">Soatlik Xona / Kabina narxi (so'm)</label>
               <input type="number" min="0" v-model.number="vipPricePerHour" placeholder="Masalan: 50000" class="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-sm text-white" />
             </div>
@@ -542,7 +542,7 @@ export default {
   },
   watch: {
     roomName(val) {
-      if (val !== "VIP zal" && val !== "Kabina") {
+      if (val !== "VIP zona" && val !== "Kabina") {
         this.vipPricePerHour = 0;
       }
     },
