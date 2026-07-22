@@ -120,7 +120,9 @@ export const appContext = {
     if (!state.isOnline && (message.includes("xatolik") || message.includes("yuklashda"))) {
       return;
     }
-    state.alertData = { isOpen: true, title, message, type };
+    // Route to toast notification so blocking "Tushunarli" modal popups never appear
+    const notifType = type === "error" || type === "destructive" ? "DANGER" : type === "warning" ? "WARNING" : "SUCCESS";
+    this.addNotification(title, message, notifType);
     this.playNotificationSound(type === "error" ? "error" : "success");
   },
 

@@ -3219,7 +3219,7 @@ export default {
           },
         };
         this.isReservationModalOpen = false;
-        appContext.showAlert("Bron Qilindi ✓", `Stol #${this.selectedTable.table_number} muvaffaqiyatli bron qilindi. Hech qanday pul olinmadi!`);
+        appContext.addNotification("Bron Qilindi ✓", `Stol #${this.selectedTable.table_number} muvaffaqiyatli bron qilindi!`, "SUCCESS");
         this.fetchData();
       } catch (err) {
         console.error(err);
@@ -3229,7 +3229,7 @@ export default {
     async clientArrived() {
       try {
         await api.put(`/restaurant-tables/${this.selectedTable.id}`, { status: "OCCUPIED" });
-        appContext.showAlert("Muvaffaqiyatli", "Stol band qilindi! Endi buyurtma olishingiz mumkin.");
+        appContext.addNotification("Stol Band Qilindi", "Stol band qilindi!", "SUCCESS");
         this.fetchData();
       } catch (err) {
         console.error(err);

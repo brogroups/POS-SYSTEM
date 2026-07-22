@@ -433,14 +433,8 @@ export default {
       this.error = "";
     },
     handleLogout() {
-      appContext.showConfirm(
-        "Tizimdan chiqish",
-        "Haqiqatan ham tizimdan chiqishni xohlaysizmi?",
-        () => {
-          appContext.logout();
-          this.$router.push("/login");
-        }
-      );
+      appContext.logout();
+      this.$router.push("/login");
     },
     handleNavigate(path) {
       if (this.$route.path !== path) {
