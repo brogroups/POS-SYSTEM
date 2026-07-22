@@ -315,7 +315,7 @@ export default {
         { name: "Stollar", icon: "MonitorSmartphone", path: "/pos", roles: ["SUPERADMIN", "MANAGER", "CASHIER", "WAITER"] },
         { name: "Menyu", icon: "Utensils", path: "/products", roles: ["SUPERADMIN", "MANAGER"] },
         { name: "Ombor", icon: "Store", path: "/inventory", roles: ["SUPERADMIN", "MANAGER", "CASHIER"] },
-        { name: "Kunlik Rasxod", icon: "Receipt", path: "/expenses", roles: ["SUPERADMIN", "MANAGER", "CASHIER", "WAITER"] },
+        { name: "Kunlik Rasxod", icon: "Receipt", path: "/expenses", roles: ["SUPERADMIN", "MANAGER"] },
         { name: "Buyurtmalar", icon: "ShoppingCart", path: "/orders", roles: ["SUPERADMIN", "MANAGER", "CASHIER"] },
         { name: "Hisobotlar", icon: "Receipt", path: "/payments", roles: ["SUPERADMIN", "MANAGER", "CASHIER"] },
         { name: "Xodimlar", icon: "Users", path: "/users", roles: ["SUPERADMIN"] },

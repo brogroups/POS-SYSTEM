@@ -407,10 +407,11 @@
       </span>
     </div>
 
-    <!-- Right Sidebar (Order Compilation & Operations) -->
+    <!-- Right Sidebar (Order Compilation & Operations) - Shows ONLY when a table is clicked -->
     <div 
+      v-if="selectedTable"
       :class="[
-        'fixed md:static inset-y-0 right-0 z-50 w-full md:w-72 xl:w-[320px] bg-[#181b25] border-l border-[#2a2e3d] md:border md:rounded-2xl flex flex-col shadow-2xl md:shadow-lg overflow-hidden shrink-0 text-white transition-all duration-300 transform',
+        'fixed md:static inset-y-0 right-0 z-50 w-full md:w-80 xl:w-[360px] bg-[#181b25] border-l border-[#2a2e3d] md:border md:rounded-2xl flex flex-col shadow-2xl md:shadow-lg overflow-hidden shrink-0 text-white transition-all duration-300 transform',
         isMobileCartOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'
       ]"
     >
@@ -579,13 +580,17 @@
       <!-- Checkout Actions / Footer -->
       <div class="p-5 bg-[#14161e] border-t border-[#2a2e3d] shrink-0">
         <div v-if="currentOccupiedOrder">
-          <div v-if="vipCalc" class="mb-2 flex justify-between text-xs text-[#94a3b8] px-1">
+          <div v-if="vipCalc && !isWaiter" class="mb-2 flex justify-between text-xs text-[#94a3b8] px-1">
             <span>Taomlar jami:</span>
             <span>{{ formatNumber(currentOccupiedOrder.total_amount) }} so'm</span>
           </div>
-          <div class="flex justify-between items-center mb-4 bg-[#ea4335]/10 p-4 rounded-xl border border-[#ea4335]/20">
+          <div v-if="!isWaiter" class="flex justify-between items-center mb-4 bg-[#ea4335]/10 p-4 rounded-xl border border-[#ea4335]/20">
             <span class="font-bold text-red-400">Jami hisob:</span>
             <span class="text-xl font-bold text-white">{{ formatNumber(finalOccupiedAmount) }} so'm</span>
+          </div>
+          <div v-else class="flex justify-between items-center mb-4 bg-blue-500/10 p-4 rounded-xl border border-blue-500/20">
+            <span class="font-bold text-blue-400">Jami taomlar:</span>
+            <span class="text-xl font-bold text-white">{{ displayCartItems.reduce((acc, i) => acc + (i.qty || 0), 0) }} ta</span>
           </div>
           <div class="flex flex-col gap-2">
             <div v-if="hasEditChanges" class="space-y-2">
@@ -594,7 +599,7 @@
                 <input 
                   type="text" 
                   v-model="editReason"
-                  placeholder="Masalan: Mijoz fikridan qaytdi"
+                  placeholder="Masalan: Yangi taom qo'shildi"
                   class="w-full bg-[#1e2230] border border-[#2a2e3d] text-xs text-white rounded-lg px-3 py-2 outline-none focus:border-blue-500"
                 />
               </div>
@@ -609,19 +614,22 @@
                   @click="saveOrderEdits"
                   class="py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
                 >
-                  Saqlash
+                  {{ isWaiter ? "Yangi Zakaz Qo'shish ⚡" : "Saqlash" }}
                 </button>
               </div>
             </div>
             <div v-else class="space-y-2">
+              <!-- Checkout button (Cashier & Admin only) -->
               <button 
+                v-if="isCashierOrAdmin"
                 @click="isCheckModalOpen = true"
                 class="w-full py-3 bg-[#34a853] hover:bg-[#2e944b] text-white rounded-xl font-bold transition-colors flex justify-center items-center gap-2 shadow-lg shadow-green-500/20 cursor-pointer"
               >
                 <Receipt class="h-5 w-5" /> Stolni Yopish (To'lov)
               </button>
 
-              <div class="grid grid-cols-2 gap-2">
+              <!-- Merge & Transfer (Cashier & Admin only) -->
+              <div v-if="isCashierOrAdmin" class="grid grid-cols-2 gap-2">
                 <button 
                   @click="openMergeTablesModal"
                   class="py-2.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-xl text-xs font-bold border border-amber-500/20 transition-colors flex justify-center items-center gap-1.5 cursor-pointer shadow-xs"
@@ -639,8 +647,9 @@
                 </button>
               </div>
 
-              <!-- Prominent Timer Start / Stop Action Button -->
+              <!-- Prominent Timer Start / Stop Action Button (Cashier & Admin only) -->
               <button 
+                v-if="isCashierOrAdmin && isVipOrKabinaTable"
                 @click="isTimerActive ? stopVipTimer() : startVipTimer()"
                 :class="[
                   'w-full py-2.5 rounded-xl text-xs font-bold transition-all flex justify-center items-center gap-2 cursor-pointer shadow-md border mb-2',
@@ -651,7 +660,8 @@
                 <span>{{ isTimerActive ? 'Vaqtni to\'xtatish' : 'Vaqtni boshlash' }}</span>
               </button>
 
-              <div class="grid grid-cols-2 gap-2">
+              <!-- Freeze & Cancel (Cashier & Admin only) -->
+              <div v-if="isCashierOrAdmin" class="grid grid-cols-2 gap-2">
                 <button 
                   @click="toggleTableFreeze"
                   class="py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-xl text-xs font-bold border border-blue-500/20 transition-colors flex justify-center items-center gap-1.5 cursor-pointer"
@@ -665,6 +675,15 @@
                   <AlertOctagon class="h-3.5 w-3.5" /> Bekor qilish
                 </button>
               </div>
+
+              <!-- Waiter Action Button -->
+              <button 
+                v-if="isWaiter"
+                @click="handleSendOrder"
+                class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-colors shadow-lg shadow-blue-500/20 cursor-pointer"
+              >
+                Kassirga Yuborish ⚡
+              </button>
             </div>
           </div>
         </div>
@@ -1851,6 +1870,13 @@ export default {
     isPrivileged() {
       const r = this.state.role;
       return r === "SUPERADMIN" || r === "MANAGER";
+    },
+    isWaiter() {
+      return this.state.role === "WAITER";
+    },
+    isCashierOrAdmin() {
+      const r = this.state.role;
+      return r === "SUPERADMIN" || r === "MANAGER" || r === "CASHIER";
     },
     notificationsList() {
       const list = [...(this.state.notifications || [])];
