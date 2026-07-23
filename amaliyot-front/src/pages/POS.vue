@@ -2045,19 +2045,19 @@ export default {
         return Object.values(resultMap);
       }
 
-      // 4. Return saved order items if no local draft items
+      // 4. Return saved order items if available
       if (orderItemsList.length > 0) {
         return orderItemsList;
       }
 
-      // 5. Fallback for legacy active orders (created before fix) where total_amount > 0 but order_items array in DB was empty
+      // 5. Informative fallback for legacy active orders (created before fix) where total_amount > 0 but order_items array in DB was empty
       if (this.currentOccupiedOrder) {
         const orderAmount = Number(this.currentOccupiedOrder.total_amount || this.currentOccupiedOrder.final_amount || this.currentOccupiedOrder.totalAmount || 0);
         if (orderAmount > 0) {
           return [
             {
               productId: `order-legacy-${this.currentOccupiedOrder.id}`,
-              name: `Buyurtma Taomlari`,
+              name: `Avvalgi seans buyurtmasi (Eski zakaz summasi)`,
               price: orderAmount,
               qty: 1,
               originalQty: 1
@@ -2172,6 +2172,16 @@ export default {
     },
     allCombinedItems() {
       if (!this.currentOccupiedOrder) return [];
+      const displayItems = this.displayCartItems;
+      if (displayItems && displayItems.length > 0) {
+        return displayItems.map(i => ({
+          product_id: i.productId,
+          quantity: i.qty,
+          qty: i.qty,
+          price: i.price,
+          subtotal: (i.price || 0) * (i.qty || 0)
+        }));
+      }
       const getItems = (o) => o.order_items || o.orderItems || o.items || o.order_details || [];
       const primaryItems = getItems(this.currentOccupiedOrder);
       const secondaryItems = [];
@@ -2180,22 +2190,17 @@ export default {
           secondaryItems.push(item);
         });
       });
-      const combined = [...primaryItems, ...secondaryItems];
-      if (combined.length === 0 && this.editModeCart && this.editModeCart.length > 0) {
-        return this.editModeCart.map(c => ({
-          product_id: c.productId,
-          quantity: c.qty,
-          price: c.price,
-          subtotal: c.price * c.qty
-        }));
-      }
-      return combined;
+      return [...primaryItems, ...secondaryItems];
     },
     itemsSubtotal() {
       if (!this.currentOccupiedOrder) return 0;
+      const displayItems = this.displayCartItems;
+      if (displayItems && displayItems.length > 0) {
+        return displayItems.reduce((sum, item) => sum + Number((item.qty || 0) * (item.price || 0)), 0);
+      }
       const items = this.allCombinedItems;
-      if (items.length > 0) {
-        return items.reduce((sum, item) => sum + Number(item.subtotal || ((item.quantity || 0) * (item.price || 0))), 0);
+      if (items && items.length > 0) {
+        return items.reduce((sum, item) => sum + Number(item.subtotal || (((item.qty !== undefined ? item.qty : item.quantity) || 0) * (item.price || 0))), 0);
       }
       return Number(this.currentOccupiedOrder.total_amount || 0);
     },
