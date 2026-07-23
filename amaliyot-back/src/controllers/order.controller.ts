@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { Request, Response } from 'express';
 import { OrderModel } from '../models/order.model';
+import { OrderItemModel } from '../models/order-item.model';
 import { OrderService } from '../services/order.service';
 import { OrderItemHistoryModel } from '../models/order-item-history.model';
 
@@ -10,18 +11,28 @@ export const OrderController = {
       const hasIsDeleted = ['user', 'category', 'product', 'customer', 'restaurantTable', 'discount'].includes('order');
       const where = hasIsDeleted ? { is_deleted: false } : {};
       
-      let include: any = undefined;
-      if ('order' === 'order') {
-        include = {
-          order_items: {
-            include: {
-              product: true
-            }
+      let include: any = {
+        order_items: {
+          include: {
+            product: true
           }
-        };
-      }
+        }
+      };
       
       const data = await OrderModel.findMany({ where, include });
+
+      for (const order of data || []) {
+        if (!order.order_items || order.order_items.length === 0) {
+          const items = await OrderItemModel.findMany({
+            where: { order_id: order.id },
+            include: { product: true }
+          });
+          if (items && items.length > 0) {
+            order.order_items = items;
+          }
+        }
+      }
+
       res.json(data);
     } catch (error) {
       console.error(error);
@@ -33,16 +44,13 @@ export const OrderController = {
     try {
       const id = req.params.id;
       
-      let include: any = undefined;
-      if ('order' === 'order') {
-        include = {
-          order_items: {
-            include: {
-              product: true
-            }
+      let include: any = {
+        order_items: {
+          include: {
+            product: true
           }
-        };
-      }
+        }
+      };
       
       const hasIsDeleted = ['user', 'category', 'product', 'customer', 'restaurantTable', 'discount'].includes('order');
       const where = { id, ...(hasIsDeleted ? { is_deleted: false } : {}) };
@@ -56,6 +64,17 @@ export const OrderController = {
         res.status(404).json({ error: 'Topilmadi' });
         return;
       }
+
+      if (!data.order_items || data.order_items.length === 0) {
+        const items = await OrderItemModel.findMany({
+          where: { order_id: data.id },
+          include: { product: true }
+        });
+        if (items && items.length > 0) {
+          data.order_items = items;
+        }
+      }
+
       res.json(data);
     } catch (error) {
       console.error(error);

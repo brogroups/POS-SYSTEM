@@ -1,6 +1,7 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 import { Request, Response } from 'express';
 import { OrderItemModel } from '../models/order-item.model';
+import { OrderModel } from '../models/order.model';
 
 export const OrderItemController = {
   getAll: async (req: Request, res: Response): Promise<void> => {
@@ -64,6 +65,16 @@ export const OrderItemController = {
   create: async (req: Request, res: Response): Promise<void> => {
     try {
       const data = await OrderItemModel.create({ data: req.body });
+
+      if (data && data.order_id) {
+        const allItems = await OrderItemModel.findMany({ where: { order_id: data.order_id } });
+        const total = allItems.reduce((sum: number, item: any) => sum + Number(item.subtotal || ((item.quantity || 0) * (item.price || 0)) || 0), 0);
+        await OrderModel.update({
+          where: { id: data.order_id },
+          data: { total_amount: total, final_amount: total }
+        });
+      }
+
       res.status(201).json(data);
     } catch (error) {
       console.error(error);
