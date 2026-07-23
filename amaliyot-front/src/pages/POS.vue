@@ -908,10 +908,10 @@
               <span class="w-1/6 text-center">Soni</span>
               <span class="w-1/3 text-right">Summa</span>
             </div>
-            <div v-for="item in allCombinedItems" :key="item.id || item.product_id" class="flex justify-between text-[11px] py-1 border-b border-gray-100">
-              <span class="w-1/2 truncate text-black font-medium">{{ getProductName(item.product_id) }}</span>
-              <span class="w-1/6 text-center font-bold">x{{ item.quantity || item.qty || 1 }}</span>
-              <span class="w-1/3 text-right font-bold">{{ formatNumber(item.subtotal || ((item.quantity || item.qty || 1) * (item.price || 0))) }} so'm</span>
+            <div v-for="(item, idx) in displayCartItems" :key="item.productId || idx" class="flex justify-between text-[11px] py-1 border-b border-gray-100">
+              <span class="w-1/2 truncate text-black font-medium">{{ item.name }}</span>
+              <span class="w-1/6 text-center font-bold">x{{ item.qty || 1 }}</span>
+              <span class="w-1/3 text-right font-bold">{{ formatNumber((item.price || 0) * (item.qty || 1)) }} so'm</span>
             </div>
           </div>
 
@@ -1224,10 +1224,10 @@
                 <span class="w-1/6 text-center">Soni</span>
                 <span class="w-1/3 text-right">Summa</span>
               </div>
-              <div v-for="item in allCombinedItems" :key="item.id || item.product_id" class="flex justify-between text-[11px] py-1 border-b border-gray-100">
-                <span class="w-1/2 truncate text-black font-medium">{{ getProductName(item.product_id) }}</span>
-                <span class="w-1/6 text-center font-bold">x{{ item.quantity || item.qty || 1 }}</span>
-                <span class="w-1/3 text-right font-bold">{{ formatNumber(item.subtotal || ((item.quantity || item.qty || 1) * (item.price || 0))) }} so'm</span>
+              <div v-for="(item, idx) in displayCartItems" :key="item.productId || idx" class="flex justify-between text-[11px] py-1 border-b border-gray-100">
+                <span class="w-1/2 truncate text-black font-medium">{{ item.name }}</span>
+                <span class="w-1/6 text-center font-bold">x{{ item.qty || 1 }}</span>
+                <span class="w-1/3 text-right font-bold">{{ formatNumber((item.price || 0) * (item.qty || 1)) }} so'm</span>
               </div>
             </div>
 
