@@ -909,9 +909,9 @@
               <span class="w-1/3 text-right">Summa</span>
             </div>
             <div v-for="(item, idx) in displayCartItems" :key="item.productId || idx" class="flex justify-between text-[11px] py-1 border-b border-gray-100">
-              <span class="w-1/2 truncate text-black font-medium">{{ item.name }}</span>
-              <span class="w-1/6 text-center font-bold">x{{ item.qty || 1 }}</span>
-              <span class="w-1/3 text-right font-bold">{{ formatNumber((item.price || 0) * (item.qty || 1)) }} so'm</span>
+              <span class="w-1/2 truncate text-black font-semibold">{{ item.name }}</span>
+              <span class="w-1/6 text-center font-bold text-black">{{ item.qty || 1 }}x</span>
+              <span class="w-1/3 text-right font-bold text-black">{{ formatNumber((item.price || 0) * (item.qty || 1)) }} so'm</span>
             </div>
           </div>
 
@@ -1225,9 +1225,9 @@
                 <span class="w-1/3 text-right">Summa</span>
               </div>
               <div v-for="(item, idx) in displayCartItems" :key="item.productId || idx" class="flex justify-between text-[11px] py-1 border-b border-gray-100">
-                <span class="w-1/2 truncate text-black font-medium">{{ item.name }}</span>
-                <span class="w-1/6 text-center font-bold">x{{ item.qty || 1 }}</span>
-                <span class="w-1/3 text-right font-bold">{{ formatNumber((item.price || 0) * (item.qty || 1)) }} so'm</span>
+                <span class="w-1/2 truncate text-black font-semibold">{{ item.name }}</span>
+                <span class="w-1/6 text-center font-bold text-black">{{ item.qty || 1 }}x</span>
+                <span class="w-1/3 text-right font-bold text-black">{{ formatNumber((item.price || 0) * (item.qty || 1)) }} so'm</span>
               </div>
             </div>
 
