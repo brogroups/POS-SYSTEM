@@ -2050,6 +2050,22 @@ export default {
         return orderItemsList;
       }
 
+      // 5. Fallback for legacy active orders (created before fix) where total_amount > 0 but order_items array in DB was empty
+      if (this.currentOccupiedOrder) {
+        const orderAmount = Number(this.currentOccupiedOrder.total_amount || this.currentOccupiedOrder.final_amount || this.currentOccupiedOrder.totalAmount || 0);
+        if (orderAmount > 0) {
+          return [
+            {
+              productId: `order-legacy-${this.currentOccupiedOrder.id}`,
+              name: `Buyurtma Taomlari`,
+              price: orderAmount,
+              qty: 1,
+              originalQty: 1
+            }
+          ];
+        }
+      }
+
       return [];
     },
     isTimerActive() {
