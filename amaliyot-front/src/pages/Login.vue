@@ -156,8 +156,6 @@ export default {
           
           if (result.role === "CHEF") {
             this.$router.push("/chef");
-          } else if (result.role === "SUPERADMIN" || result.role === "MANAGER") {
-            this.$router.push("/");
           } else {
             this.$router.push("/pos");
           }

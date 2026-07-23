@@ -1,7 +1,119 @@
-const { app, BrowserWindow, Menu } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 const path = require('path');
+const os = require('os');
+const net = require('net');
 
 let mainWindow;
+
+// Handle LAN printer scanning in Electron main process
+ipcMain.handle('scan-lan-printers', async () => {
+  try {
+    const interfaces = os.networkInterfaces();
+    const subnets = [];
+
+    for (const name of Object.keys(interfaces)) {
+      for (const iface of interfaces[name] || []) {
+        if (!iface.internal && iface.family === 'IPv4') {
+          const parts = iface.address.split('.');
+          if (parts.length === 4) {
+            subnets.push(`${parts[0]}.${parts[1]}.${parts[2]}`);
+          }
+        }
+      }
+    }
+
+    const uniqueSubnets = Array.from(new Set(subnets));
+    if (uniqueSubnets.length === 0) {
+      uniqueSubnets.push('192.168.1', '192.168.0', '192.168.8', '192.168.31');
+    }
+
+    const pingPort = (ip, port = 9100, timeout = 300) => {
+      return new Promise((resolve) => {
+        const socket = new net.Socket();
+        socket.setTimeout(timeout);
+        socket.on('connect', () => {
+          socket.destroy();
+          resolve(true);
+        });
+        socket.on('timeout', () => {
+          socket.destroy();
+          resolve(false);
+        });
+        socket.on('error', () => {
+          socket.destroy();
+          resolve(false);
+        });
+        socket.connect(port, ip);
+      });
+    };
+
+    const foundPrinters = [];
+
+    for (const subnet of uniqueSubnets) {
+      const ips = Array.from({ length: 254 }, (_, i) => `${subnet}.${i + 1}`);
+      const batchSize = 35;
+
+      for (let i = 0; i < ips.length; i += batchSize) {
+        const batch = ips.slice(i, i + batchSize);
+        const results = await Promise.all(
+          batch.map(async (ip) => {
+            const isOpen = await pingPort(ip, 9100, 300);
+            return isOpen ? { ip, port: 9100, status: 'Online' } : null;
+          })
+        );
+        for (const item of results) {
+          if (item) foundPrinters.push(item);
+        }
+      }
+    }
+
+    return { success: true, count: foundPrinters.length, printers: foundPrinters };
+  } catch (err) {
+    console.error('Electron LAN scan error:', err);
+    return { success: false, error: err.message, printers: [] };
+  }
+});
+
+// Handle LAN printer test print in Electron main process
+ipcMain.handle('test-lan-printer', async (event, { ip, port = 9100 }) => {
+  return new Promise((resolve) => {
+    if (!ip) return resolve({ success: false, error: 'IP manzil kiritilmadi' });
+
+    const socket = new net.Socket();
+    socket.setTimeout(2500);
+
+    socket.on('connect', () => {
+      const testBuffer = Buffer.from(
+        '\x1b\x40' + // Init
+        '\x1b\x61\x01' + // Center
+        '\x1b\x45\x01' + // Bold ON
+        'OHLALA POS - LAN TEST\n' +
+        '\x1b\x45\x00' + // Bold OFF
+        'IP: ' + ip + '\n' +
+        'Ethernet ulanishi muvaffaqiyatli!\n\n\n' +
+        '\x1d\x56\x41\x03', // Cut
+        'raw'
+      );
+      socket.write(testBuffer, () => {
+        socket.destroy();
+        resolve({ success: true, message: `LAN Printer (${ip}:${port}) muvaffaqiyatli ulandi va sinov cheki chop etildi!` });
+      });
+    });
+
+    socket.on('timeout', () => {
+      socket.destroy();
+      resolve({ success: false, error: `Printer javob bermadi (${ip}:${port}). IP manzil va printer yoqilganini tekshiring.` });
+    });
+
+    socket.on('error', (err) => {
+      socket.destroy();
+      resolve({ success: false, error: `Ulanishda xatolik: ${err.message || 'Printer bilan bog\'lanib bo\'lmadi'}` });
+    });
+
+    socket.connect(port, ip);
+  });
+});
+
 
 function createMenu() {
   const isMac = process.platform === 'darwin';

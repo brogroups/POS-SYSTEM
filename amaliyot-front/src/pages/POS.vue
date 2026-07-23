@@ -502,11 +502,13 @@
             <Utensils v-else class="h-4 w-4 text-muted-foreground" />
           </div>
           <div class="flex-1 min-w-0">
-            <p :class="['text-sm font-semibold truncate text-white', item.qty === 0 ? 'line-through opacity-40' : '']">
+            <p :class="['text-sm font-bold truncate text-white', item.qty === 0 ? 'line-through opacity-40' : '']">
               {{ item.name }}
             </p>
-            <p class="text-xs text-[#94a3b8]">
-              {{ formatNumber(item.price) }} x {{ item.qty }}
+            <p class="text-xs text-[#94a3b8] flex items-center gap-1.5 mt-0.5">
+              <span class="px-1.5 py-0.5 bg-amber-500/20 text-amber-300 rounded font-black text-[11px]">{{ item.qty }}x</span>
+              <span class="font-bold text-white">{{ formatNumber(item.price * item.qty) }} so'm</span>
+              <span v-if="item.qty > 1" class="text-[10px] text-[#94a3b8] font-normal">({{ formatNumber(item.price) }}/ta)</span>
               <span v-if="item.qty > item.originalQty" class="text-[9px] bg-green-500/20 text-green-400 px-1 py-0.2 rounded font-bold ml-1">+ Yangi</span>
               <span v-else-if="item.qty > 0 && item.qty < item.originalQty" class="text-[9px] bg-orange-500/20 text-orange-400 px-1 py-0.2 rounded font-bold ml-1">- Kamaydi</span>
               <span v-else-if="item.qty === 0" class="text-[9px] bg-red-500/20 text-red-400 px-1 py-0.2 rounded font-bold ml-1">Bekor qilindi</span>
@@ -558,8 +560,11 @@
             <div v-else class="w-full h-full flex items-center justify-center text-xs text-[#94a3b8]">Yo'q</div>
           </div>
           <div class="flex-1 min-w-0">
-            <h4 class="text-sm font-semibold truncate text-white">{{ item.name }}</h4>
-            <p class="text-xs text-[#94a3b8] mt-0.5">{{ formatNumber(item.price) }} so'm</p>
+            <h4 class="text-sm font-bold truncate text-white">{{ item.name }}</h4>
+            <p class="text-xs text-[#94a3b8] flex items-center gap-1.5 mt-0.5">
+              <span class="px-1.5 py-0.5 bg-amber-500/20 text-amber-300 rounded font-black text-[11px]">{{ item.qty }}x</span>
+              <span class="font-bold text-white">{{ formatNumber(item.price * item.qty) }} so'm</span>
+            </p>
           </div>
           <div class="flex items-center gap-3">
             <div class="flex items-center bg-[#1e2230] rounded-lg p-0.5 border border-[#2a2e3d]">
@@ -1951,6 +1956,10 @@ export default {
       if (this.editModeCart && this.editModeCart.length > 0) {
         return this.editModeCart;
       }
+
+      // 1. Get saved items from active occupied order if available
+      let orderItemsList = [];
+
       if (this.currentOccupiedOrder) {
         const rawItems = 
           this.currentOccupiedOrder.order_items || 
@@ -1964,16 +1973,28 @@ export default {
           this.currentOccupiedOrder.cart || [];
 
         if (rawItems && rawItems.length > 0) {
-          return rawItems.map((item, idx) => {
-            const pId = item.product_id !== undefined && item.product_id !== null 
-              ? item.product_id 
-              : (item.productId !== undefined && item.productId !== null ? item.productId : (item.id || item._id));
+          orderItemsList = rawItems.map((item, idx) => {
+            const pId = (item.product_id && typeof item.product_id === 'object')
+              ? (item.product_id.id || item.product_id._id)
+              : (item.product_id !== undefined && item.product_id !== null 
+                  ? item.product_id 
+                  : (item.productId !== undefined && item.productId !== null ? item.productId : (item.id || item._id)));
+
             const prod = (this.products || []).find(p => String(p.id) === String(pId) || String(p._id) === String(pId));
             const itemQty = Number(item.quantity !== undefined ? item.quantity : (item.qty !== undefined ? item.qty : 1));
             const itemPrice = Number(item.price !== undefined ? item.price : (item.unit_price !== undefined ? item.unit_price : (prod ? prod.price : 0)));
-            const itemName = prod ? prod.name : (item.name || item.product_name || item.product?.name || "Taom");
+            let itemName = "Taom";
+            if (item.product && item.product.name) {
+              itemName = item.product.name;
+            } else if (item.product_id && typeof item.product_id === 'object' && item.product_id.name) {
+              itemName = item.product_id.name;
+            } else if (prod && prod.name) {
+              itemName = prod.name;
+            } else if (item.name || item.product_name) {
+              itemName = item.name || item.product_name;
+            }
             return {
-              productId: pId || `item-${idx}`,
+              productId: String(pId || `item-${idx}`),
               name: itemName,
               price: itemPrice,
               qty: itemQty,
@@ -1982,31 +2003,53 @@ export default {
           });
         }
       }
+
+      // 2. Get local draft cart items for selected table
+      let localCart = [];
       if (this.selectedTable) {
         const strId = String(this.selectedTable.id || this.selectedTable._id || "");
         const numStr = String(this.selectedTable.table_number || "");
-        const tableCart = this.tableCarts[strId] || (numStr ? this.tableCarts[numStr] : null);
-        if (tableCart && tableCart.length > 0) {
-          return tableCart;
+        localCart = this.tableCarts[strId] || (numStr ? this.tableCarts[numStr] : []) || [];
+      }
+      if ((!localCart || localCart.length === 0) && this.cart && this.cart.length > 0) {
+        localCart = this.cart;
+      }
+
+      // 3. If there are local draft cart items (user clicking products now)
+      if (localCart && localCart.length > 0) {
+        if (orderItemsList.length === 0) {
+          return localCart;
         }
+
+        // Combine saved order items + new draft cart items
+        const resultMap = {};
+        orderItemsList.forEach(item => {
+          resultMap[item.productId] = { ...item };
+        });
+
+        localCart.forEach(draftItem => {
+          const key = String(draftItem.productId);
+          if (resultMap[key]) {
+            resultMap[key].qty = (resultMap[key].originalQty || 0) + draftItem.qty;
+          } else {
+            resultMap[key] = {
+              productId: key,
+              name: draftItem.name,
+              price: draftItem.price,
+              qty: draftItem.qty,
+              originalQty: 0
+            };
+          }
+        });
+
+        return Object.values(resultMap);
       }
-      if (this.cart && this.cart.length > 0) {
-        return this.cart;
+
+      // 4. Return saved order items if no local draft items
+      if (orderItemsList.length > 0) {
+        return orderItemsList;
       }
-      if (this.currentOccupiedOrder) {
-        const orderAmount = Number(this.currentOccupiedOrder.total_amount || this.currentOccupiedOrder.final_amount || this.currentOccupiedOrder.totalAmount || 0);
-        if (orderAmount > 0) {
-          return [
-            {
-              productId: `order-fallback-${this.currentOccupiedOrder.id}`,
-              name: `Faol Buyurtma Taomlari`,
-              price: orderAmount,
-              qty: 1,
-              originalQty: 1
-            }
-          ];
-        }
-      }
+
       return [];
     },
     isTimerActive() {

@@ -311,8 +311,8 @@ export default {
       error: "",
       rolesList: ["MANAGER", "CASHIER", "WAITER"],
       allNavItems: [
-        { name: "Bosh sahifa", icon: "LayoutDashboard", path: "/", roles: ["SUPERADMIN", "MANAGER"] },
         { name: "Stollar", icon: "MonitorSmartphone", path: "/pos", roles: ["SUPERADMIN", "MANAGER", "CASHIER", "WAITER"] },
+        { name: "Bosh sahifa", icon: "LayoutDashboard", path: "/dashboard", roles: ["SUPERADMIN", "MANAGER"] },
         { name: "Menyu", icon: "Utensils", path: "/products", roles: ["SUPERADMIN", "MANAGER"] },
         { name: "Ombor", icon: "Store", path: "/inventory", roles: ["SUPERADMIN", "MANAGER", "CASHIER"] },
         { name: "Kunlik Rasxod", icon: "Receipt", path: "/expenses", roles: ["SUPERADMIN", "MANAGER"] },
@@ -420,7 +420,6 @@ export default {
         this.error = "";
 
         if (targetRole === "CHEF") this.$router.push("/chef");
-        else if (targetRole === "SUPERADMIN" || targetRole === "MANAGER") this.$router.push("/");
         else this.$router.push("/pos");
       } else {
         this.error = "Noto'g'ri PIN kod!";

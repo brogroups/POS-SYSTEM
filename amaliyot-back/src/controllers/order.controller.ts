@@ -65,10 +65,51 @@ export const OrderController = {
 
   create: async (req: Request, res: Response): Promise<void> => {
     try {
-      const data = await OrderModel.create({ data: req.body });
-      res.status(201).json(data);
+      const body = req.body || {};
+      const orderItems = body.order_items?.create || (Array.isArray(body.order_items) ? body.order_items : null);
+      
+      const orderData = { ...body };
+      delete orderData.order_items;
+
+      const order = await OrderModel.create({ data: orderData });
+
+      if (orderItems && Array.isArray(orderItems) && orderItems.length > 0) {
+        for (const item of orderItems) {
+          const pId = item.product_id || item.productId;
+          const qty = Number(item.quantity || item.qty || 1);
+          const price = Number(item.price || 0);
+          const subtotal = Number(item.subtotal || price * qty);
+          const kitchenStatus = item.kitchen_status || 'PENDING';
+
+          if (pId) {
+            await OrderItemModel.create({
+              data: {
+                order_id: order.id,
+                product_id: pId,
+                quantity: qty,
+                price: price,
+                subtotal: subtotal,
+                kitchen_status: kitchenStatus
+              }
+            });
+          }
+        }
+      }
+
+      const fullOrder = await OrderModel.findFirst({
+        where: { id: order.id },
+        include: {
+          order_items: {
+            include: {
+              product: true
+            }
+          }
+        }
+      });
+
+      res.status(201).json(fullOrder || order);
     } catch (error) {
-      console.error(error);
+      console.error('Order creation error:', error);
       res.status(400).json({ error: String(error) });
     }
   },
